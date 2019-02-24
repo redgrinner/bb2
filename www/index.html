@@ -139,6 +139,9 @@
 	explosionSheet = new Image();
 	explosionSheet.src = "images/explosion_total.png";
 	
+//	nebulaA = new Image();
+//	nebulaA.src = "images/neb1.png";
+	
 	ninja = new Image();
 	ninja.src = "images/ninja_3.png";
 	
@@ -372,7 +375,7 @@
 			if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
 			{
 				targetHit = true;
-				playerScore = playerScore + 5;
+				playerScore = playerScore + 1;
 				var explosion_colors = ['blue','aqua','teal'];
 				screenShakeDuration = 15;
 				
@@ -390,7 +393,7 @@
 		{
 			nX = Math.random()*(boundingWidth-50);
 			nY = Math.random()*(boundingHeight-50);
-			playerScore++;
+			playerScore = playerScore +3;
 			var explosion_colors = ['blue','aqua','teal'];
 			screenShakeDuration = 15;
 			targetHit = true;
@@ -445,8 +448,8 @@
 			ship[i].targetY = boundingHeight;
 		}
 		
-		nX = 0;
-		nY = 0;
+		nX = Math.floor(Math.random() * boundingWidth)+boundingX;;
+		nY = Math.floor(Math.random() * boundingHeight)+boundingY;;
 		playerScore = 0;
 		globalTimer = 60;
 		starTimer = 0;
@@ -655,9 +658,13 @@
 		var context = document.getElementById("primaryCanvas").getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
+		
 		//old_drawStars();
 		drawStars();
+		
+		
 		//document.getElementById("primaryCanvas").getContext('2d').drawImage(explosionSheet, 0, 0);
+	//	document.getElementById("primaryCanvas").getContext('2d').drawImage(nebulaA, -150, -150);
 		
 		
 		document.getElementById("primaryCanvas").getContext('2d').drawImage(ninja, nX, nY);
