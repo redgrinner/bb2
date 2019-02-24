@@ -178,7 +178,10 @@
 		this.dx = 0;
 		this.dy = 0;
 		this.distance = distanceArray[Math.floor(Math.random() * distanceArray.length)];
-		this.radius = Math.floor(Math.random() * 3)+1;
+		this.radius = Math.floor(Math.random() * 2)+1;
+		
+		if(Math.floor(Math.random() * 10)>9)
+			this.radius = 3;
 		
 		//if(Math.floor(Math.random() * 10)>8)
 		//	this.type = "customStar"
@@ -654,9 +657,9 @@
 		else
 			context.fillStyle = 'darkred';
 		
-		wrapText(context, sCurr, (boundingWidth/2)-50, boundingHeight-100, maxWidth, lineHeight);
+		wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
 		context.fillStyle = 'white';
-		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-50, boundingHeight-70, maxWidth, lineHeight);
+		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
 		
 	}
 	
