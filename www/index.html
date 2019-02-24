@@ -140,7 +140,9 @@
 	explosionSheet.src = "images/explosion_total.png";
 	
 	ninja = new Image();
-	ninja.src = "images/ninja_0.png";
+	ninja.src = "images/ninja_3.png";
+	
+	ship = [];
 	
 	//starScape = new Image();
 	//starFog = new Image();
@@ -203,12 +205,15 @@
 		this.ax = 0;
 		this.ay = 0;
 		this.speed = 0; //8
-		this.maxSpeed = 5;
+		this.maxSpeed = 2; //5
 		this.xSpeed = 6; //8
 		this.jumpPower = 8
 		this.hasGravity = true;
 		this.health = 5;
 		this.energy = 10;
+		
+		this.targetX = 0;
+		this.targetY = 0;
 		
 		this.radius = 32;
 		
@@ -216,7 +221,7 @@
 		this.turningSpeed = 5;
 		
 		this.image = new Image();
-		this.image.src = "images/small/turtle_0.png";
+		this.image.src = "images/ninja_0.png";
 		//this.image.src = "images/small/sab_complete.png";
 		this.frame = 1;
 		this.frameMax = 6;
@@ -342,11 +347,6 @@
         ctx.fillText(line, x, y);
     }
 	
-	function doSomething()
-	{
-		//alert("heyoo");
-	}
-	
 	function canvasClick(event)
 	{
 		var x = event.clientX;
@@ -365,8 +365,27 @@
 		//var explosion_colors = ['#FFFF00','#FFD700','#FFFFCC','#FFFF99','#FFFF66','#CCCC00','#999900'];
 		var explosion_colors = ['#FFFF00','#FFD700'];
 		
+		//check for hit on moving ships
+		var targetHit = false;
+		for (var i = 0; i < ship.length; i++)
+		{
+			if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+			{
+				targetHit = true;
+				playerScore = playerScore + 5;
+				var explosion_colors = ['blue','aqua','teal'];
+				screenShakeDuration = 15;
+				
+				ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+				ship[i].y = 50;
+				ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+				ship[i].targetY = boundingHeight;
+				
+			}
+					
+		}
 		
-		
+		//old stationary target
 		if(getDist(nX+16,nY+16,x,y)<32)
 		{
 			nX = Math.random()*(boundingWidth-50);
@@ -374,8 +393,10 @@
 			playerScore++;
 			var explosion_colors = ['blue','aqua','teal'];
 			screenShakeDuration = 15;
+			targetHit = true;
 		}
-		else 
+		
+		if(targetHit==false)
 		{
 			var explosion_colors = ['#FFFF00','#FFD700'];
 		}
@@ -410,6 +431,19 @@
 		context = document.getElementById('primaryCanvas').getContext('2d');
 		
 		exp = [];
+		ship = [];
+		
+		ship[0] = new entity(100,50,"runner");
+		ship[1] = new entity(200,150,"runner");
+		ship[2] = new entity(300,100,"runner");
+		
+		for (var i = 0; i < ship.length; i++)
+		{
+			ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+			ship[i].y = 50;
+			ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+			ship[i].targetY = boundingHeight;
+		}
 		
 		nX = 0;
 		nY = 0;
@@ -628,6 +662,11 @@
 		
 		document.getElementById("primaryCanvas").getContext('2d').drawImage(ninja, nX, nY);
 		
+		for (var i = 0; i < ship.length; i++)
+		{
+			drawR(ship[i].image,ship[i].x,ship[i].y,ship[i].rot+90,"primaryCanvas")
+		}
+		
 		
 		//draw explosions
 		for (var i = exp.length-1; i >= 0; i--)
@@ -663,10 +702,264 @@
 		
 	}
 	
+	function rotateA2B(a,b)
+	{
+		x2 = b.x;
+		y2 = b.y;
+		x1 = a.x;
+		y1 = a.y;
+		
+		var deltaX = x2 - x1;
+		var deltaY = y2 - y1;
+		var rad = Math.atan2(deltaY, deltaX);
+		var deg = rad * (180 / Math.PI)
+		
+		a.rot = deg;
+		
+	}
+	
+	function rotateShipToMouseXY(pShip)
+	{
+		//rotate player ship to face mouse cursor
+		x2 = adjustedMouseX;
+		y2 = adjustedMouseY;
+		x1 = pShip.x;
+		y1 = pShip.y;
+		
+		var deltaX = x2 - x1;
+		var deltaY = y2 - y1;
+		var rad = Math.atan2(deltaY, deltaX);
+		var deg = rad * (180 / Math.PI)
+		
+		pShip.rot = deg;
+	}
+	
+	function changeRotation(rot,change)
+	{
+		extraRot = 0;
+		rot=rot+change;
+		if(rot>360)
+		{
+			extraRot = rot-360;
+			rot = 0+extraRot;
+		}
+		else if(rot<0)
+		{
+			extraRot = rot*-1;
+			rot = 360 - extraRot;
+		}
+		return(rot);
+	}
+	
+	function toRadians (angle) 
+	{
+		return angle * (Math.PI / 180);
+	}
+	
+	function drawR(image,x,y,rot,c)
+	{
+		//if(withinBounds(x,y))
+	//	if(withinBoundsWH(x,y,image.width,image.height))
+		{
+			var canvas = document.getElementById(c);
+			var context = document.getElementById(c).getContext('2d');
+			
+			//var x = 748;//canvas.width / 2;
+			//var y = 567;//canvas.height / 2;
+			var width = image.width;
+			var height = image.height;
+
+			angleInRadians = toRadians(rot);
+			
+			context.translate(x, y);
+			context.rotate(angleInRadians);
+			context.drawImage(image, -width / 2, -height / 2, width, height);
+			context.rotate(-angleInRadians);
+			context.translate(-x, -y);
+		}
+	}
+	
+	function handleShipMovement()
+	{
+		for (var i = 0; i < ship.length; i++)
+		{
+			
+			//////////////////
+			//handle turning 
+			//////////////////
+			
+			if(ship[i].type=="station")
+			{
+				ship[i].rot = changeRotation(ship[i].rot,ship[i].turningSpeed);
+			}
+			else
+			{
+			
+				x2 = ship[i].targetX;//player.x;
+				y2 = ship[i].targetY;//player.y;
+				x1 = ship[i].x;
+				y1 = ship[i].y;
+				
+				var deltaX = x2 - x1;
+				var deltaY = y2 - y1;
+				var rad = Math.atan2(deltaY, deltaX);
+				var deg = rad * (180 / Math.PI)
+				
+				idealRotation = deg;
+				if(deg < 0)
+					idealRotation = 360+deg;
+				
+				idealRotation = Math.floor(idealRotation);
+				var turning = true;
+				var leftTurnRot = Math.floor(ship[i].rot);
+				var leftTurn = 0;
+				while(turning)
+				{
+					leftTurn++;
+					
+					leftTurnRot = changeRotation(leftTurnRot,-1);
+					
+					if(leftTurnRot==idealRotation)
+						turning = false;
+									
+					if(leftTurn>370)
+					{
+						//alert(idealRotation + ";" + leftTurn + ";" + rightTurn);
+						turning = false;
+					}
+				}
+				
+				var turning = true;
+				var rightTurnRot = Math.floor(ship[i].rot);
+				var rightTurn = 0;
+				while(turning)
+				{
+					rightTurn++;
+					
+					rightTurnRot = changeRotation(rightTurnRot,1);
+				
+					if(rightTurnRot==idealRotation)
+						turning = false;
+
+					if(rightTurn>370)
+					{
+						//alert(idealRotation + ";" + leftTurn + ";" + rightTurn);
+						turning = false;
+					}
+				}
+				
+				if(leftTurn<rightTurn)
+					ship[i].rot = changeRotation(ship[i].rot,-ship[i].turningSpeed)
+				else
+					ship[i].rot = changeRotation(ship[i].rot,ship[i].turningSpeed)
+				
+					
+				if(i==0)
+				{
+					//rotDetail = xDiff + ";" + yDiff;
+					//rotDetail = Math.floor(ship[i].rot)+ "; " + Math.floor(idealRotation) + "; " + Math.floor(dif);
+					//rotDetail = idealRotation + ";" + leftTurn + ";" + rightTurn;
+				}
+			
+			}
+		
+		
+		
+		
+			//////////////////
+			//handle thrust 
+			//////////////////
+			//thrust
+			if(true)
+			{
+				ship[i].ax = Math.cos(ship[i].rot*Math.PI/180)*ship[i].accelerationPower;
+				ship[i].ay = Math.sin(ship[i].rot*Math.PI/180)*ship[i].accelerationPower;
+			}
+			else
+			{
+				//no acceleration is being applied, so cancel acceleration
+				ship[i].ax = 0;
+				ship[i].ay = 0;
+			}
+			
+			
+			//update velocity
+			ship[i].dx += ship[i].ax;
+			ship[i].dy += ship[i].ay;
+			
+			var tempDX = ship[i].dx;
+			var tempDY = ship[i].dy;
+			
+			tempSpeed = Math.sqrt(tempDX * tempDX + tempDY * tempDY);
+			if (tempSpeed > ship[i].maxSpeed) 
+			{
+				//the resulting speed is always <= maxspeed (normed to that)
+				//ship[i].dy *= ship[i].maxSpeed/tempSpeed;
+				//ship[i].dx *= ship[i].maxSpeed/tempSpeed;
+				
+				ship[i].dy /= tempSpeed/ship[i].maxSpeed;
+				ship[i].dx /= tempSpeed/ship[i].maxSpeed;
+			}
+			
+			
+			//decrease speed due to friction/brakes
+			if (false)
+			{	
+				
+				ship[i].dy *= playerFriction;
+				if(((ship[i].dy > 0) && (ship[i].dy < 1)) || ((ship[i].dy < 0) && (ship[i].dy > -1)))
+					ship[i].dy = 0;
+				ship[i].dx *= playerFriction;
+				if(((ship[i].dx > 0) && (ship[i].dx < 1)) || ((ship[i].dx < 0) && (ship[i].dx > -1)))
+					ship[i].dx = 0;
+			}
+					
+			
+			//update position
+			ship[i].x = ship[i].x + ship[i].dx;
+			ship[i].y = ship[i].y + ship[i].dy;
+			
+			
+			if(ship[i].y> boundingHeight)
+			{
+				ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+				ship[i].y = 50;
+				ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+				ship[i].targetY = boundingHeight;
+			}
+			
+			if(ship[i].x > boundingWidth)
+				ship[i].dx *= -1;
+			
+			if(ship[i].x < 0)
+				ship[i].dx *= -1;
+			
+			//out of map bounds 
+			/*
+			if(ship[i].x > 1900)
+				ship[i].dx *= -1;
+			
+			if(ship[i].y > 900)
+				ship[i].dy *= -1;
+			
+			if(ship[i].x < 0)
+				ship[i].dx *= -1;
+			
+			if(ship[i].y < 0)
+				ship[i].dy *= -1;
+			*/
+		
+			
+		
+		}
+	}
+	
 	function update()
 	{
 		
 		//drawCamera();
+		
+		handleShipMovement();
 		
 		if(screenShakeDuration>0)
 		{
