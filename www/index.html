@@ -147,6 +147,156 @@
 	//starScape.src = "images/newStars2.png";
 	//starFog.src = "images/fog2.png"; // starFog
 	
+	star = [];
+	
+	greyShades = 
+	[
+	"#E0E0E0",
+	"#D3D3D3",
+	"#C0C0C0",
+	"#B8B8B8",
+	"#A9A9A9",
+	"#A0A0A0",
+	"#909090",
+	"#696969",
+	"#585858",
+	"#484848",
+	"#282828",
+	//"yellow",
+	//"darkgreen",
+	"dodgerblue",
+	"darkred"//,
+	//"nebula"
+	];
+	
+	distanceArray = [0.10,0.25,0.5,0.75,1,1.25];
+	
+	function heavenlyBody(pX,pY)
+	{
+		this.x = pX;
+		this.y = pY;
+		this.dx = 0;
+		this.dy = 0;
+		this.distance = distanceArray[Math.floor(Math.random() * distanceArray.length)];
+		this.radius = Math.floor(Math.random() * 3)+1;
+		
+		//if(Math.floor(Math.random() * 10)>8)
+		//	this.type = "customStar"
+		//else 
+		this.type = "star";
+		this.colour = greyShades[Math.floor(Math.random() * greyShades.length)];
+		
+		var rX = Math.floor(Math.random() * 3000)-1500;
+		
+	}
+	
+	function entity(pX, pY, pType)
+	{
+		this.x = pX;
+		this.y = pY;
+		this.rot = 270;
+		this.dx = 0;
+		this.dy = 0;
+		this.ax = 0;
+		this.ay = 0;
+		this.speed = 0; //8
+		this.maxSpeed = 5;
+		this.xSpeed = 6; //8
+		this.jumpPower = 8
+		this.hasGravity = true;
+		this.health = 5;
+		this.energy = 10;
+		
+		this.radius = 32;
+		
+		this.accelerationPower = 0.05; //0.05 //0.2
+		this.turningSpeed = 5;
+		
+		this.image = new Image();
+		this.image.src = "images/small/turtle_0.png";
+		//this.image.src = "images/small/sab_complete.png";
+		this.frame = 1;
+		this.frameMax = 6;
+		
+		this.team = "enemy";
+		this.type = pType;
+		
+		//stuff just for the player
+		this.wallSlide = false;
+		this.jumpStage = 0;
+		
+		
+		//stuff for monsters/projectiles
+		this.moveTimer = 0;
+		this.moveTimerMax = 3;
+		this.direction = "left";
+		
+		this.specialTimer = 12;
+		this.specialTimerMax = 12;
+		
+		this.weapon = "blaster";
+		this.missiles = 0;
+		
+		this.sparkTimer = 20;
+		this.energyRegenTimer = 0;
+		this.energyRegenTimerMax = 10;
+		
+		if(this.type=="player")
+		{
+			this.health = 10;
+			this.energy = 20;
+			this.team = "player";
+			this.weapon = "hornet"; //this.weapon = "HAL";
+			this.missiles = 0;//10
+		}
+		else if(this.type=="enemy_turret") 
+		{
+			this.team = "enemy";
+			this.image.src = "images/small/ninja_1.png"; //ninja_1
+			this.accelerationPower = 0;
+			this.maxSpeed = 0;
+			this.turningSpeed = 0.5;
+			//alert(this.image.src);
+			this.weapon = "blaster";
+		}
+		else if(this.type=="enemy") 
+		{
+			this.team = "enemy";
+			this.image.src = "images/small/turtle_0.png";
+			this.accelerationPower = 0.05; //0.05 //0.2
+			this.turningSpeed = 5;
+			this.maxSpeed = 5;
+			this.turningSpeed = 5;
+			this.weapon = "particle";
+		}
+		else if(this.type=="slider") 
+		{
+			this.team = "enemy";
+			this.image.src = "images/small/sab_1.png";
+			this.accelerationPower = 1; //0.05 //0.2
+			this.turningSpeed = 5;
+			this.maxSpeed = 4;
+			this.turningSpeed = 5;
+			this.weapon = "particle";
+		}
+		else if(this.type=="station") 
+		{
+			this.image.src = "images/small/ss2.png"; //ninja_1 ss2
+			this.team = "player";
+			this.accelerationPower = 0;
+			this.maxSpeed = 0;
+			this.turningSpeed = 0.1; //0.1
+			this.health = 50;
+			this.radius = 175;
+			//alert(this.image.src);
+			this.weapon = "none";
+		}
+		
+		this.maxHealth = this.health;
+		this.maxEnergy = this.energy;
+	
+	}
+	
 	function explosion(pX,pY,t)
 	{
 		this.frame = 0;
@@ -220,6 +370,7 @@
 			nY = Math.random()*(boundingHeight-50);
 			playerScore++;
 			var explosion_colors = ['blue','aqua','teal'];
+			screenShakeDuration = 15;
 		}
 		else 
 		{
@@ -248,6 +399,8 @@
 		canvas.width = x-50; //1920
 		canvas.height = y-30; //900
 		
+		boundingX = 0;
+		boundingY = 0;
 		boundingWidth = x-50;
 		boundingHeight = y-30;
 		
@@ -271,6 +424,8 @@
 		fogX = 0;
 		fogY = 0;
 		
+		screenShakeDuration = 0;
+		
 		lightningCounter = 0;
 		starTimer = 0;
 		starX = 0;
@@ -279,6 +434,115 @@
 		fogX_right = 1920;
 		backX = 3000;
 		
+		
+		player = new entity(528,488,"player");
+		player.dx = 0;
+		player.dy = -1;
+		
+		star = [];
+		for (var i = 0; i < 270; i++) //500 //270
+		{
+			var rX = Math.floor(Math.random() * boundingWidth)+boundingX;
+			var rY = Math.floor(Math.random() * boundingHeight)+boundingY;
+			star[star.length] = new heavenlyBody(rX,rY);
+		}
+		
+		
+	}
+	
+	function drawStars()
+	{
+		//do literally nothing 
+		//drawR(scoutShip[engineFrame],player.x-cameraX,player.y-cameraY,player.rot+90,"primaryCanvas")
+		
+		for (var i = 0; i < star.length; i++)
+		{
+			//context.drawImage(turretImage,star[i].x-cameraX, star[i].y-cameraY);
+			
+			//new way, move the whole universe.
+			star[i].dx = player.dx*star[i].distance*-1;
+			star[i].dy = player.dy*star[i].distance*-1;
+			star[i].x = star[i].x + star[i].dx;
+			star[i].y = star[i].y + star[i].dy;
+			
+		
+			context.fillStyle = star[i].colour;
+				
+			//context.fillRect(star[i].x, star[i].y,2,2);
+			//if(variableStarSize)
+			//{
+				//if(star[i].type=="star")
+					context.fillRect(star[i].x, star[i].y,star[i].radius,star[i].radius);
+				//else
+				//	context.drawImage(customStar[star[i].radius],star[i].x, star[i].y);
+				
+				
+				//if(star[i].radius>=3)
+				//	context.globalAlpha = 0.3;
+				//context.fillRect(star[i].x, star[i].y,star[i].radius,star[i].radius);
+				//context.globalAlpha = 1;
+				//customStar
+				
+			//}
+			//else
+			//	context.fillRect(star[i].x, star[i].y,2,2);
+			
+			//if(star[i].colour=="nebula")
+			//	context.drawImage(nebulaA,star[i].x-cameraX, star[i].y-cameraY);
+			
+			
+			//}
+			//old way, draw stars where they are
+			//context.fillRect(star[i].x-cameraX, star[i].y-cameraY,2,2);
+			
+			
+			//context.strokeStyle = star[i].colour;
+			
+			//context.beginPath();
+            //context.arc(star[i].x-cameraX, star[i].y-cameraY, star[i].radius, 0, 2 * Math.PI, false);
+            //context.fill();
+            //context.stroke();
+			
+		}
+		
+		//reposition stars that leave the bounding box
+		for (var i = star.length-1; i >= 0; i--)
+		{
+			//if	(
+			//		(star[i].x<boundingX) || (star[i].y<boundingY) ||
+			//		(star[i].x>boundingX+boundingWidth) || (star[i].y>boundingY+boundingHeight)
+			//	)
+			//	star[i].colour = "limegreen";
+				
+			if(star[i].x<boundingX)
+				star[i].x = boundingX+boundingWidth;
+			else if(star[i].x>boundingX+boundingWidth)
+				star[i].x = boundingX;
+			if(star[i].y<boundingY)
+				star[i].y = boundingY+boundingHeight;
+			else if(star[i].y>boundingY+boundingHeight)
+				star[i].y = boundingY;
+		}
+		
+		//draw planets and nebulae
+		/*
+		for (var i = 0; i < planet.length; i++)
+		{
+			if(planet[i].type == "planet_redblue")
+				context.drawImage(planetImg[0],planet[i].x-cameraX,planet[i].y-cameraY)
+			else if (planet[i].type == "planet_blue")
+				context.drawImage(planetImg[1],planet[i].x-cameraX,planet[i].y-cameraY)
+			else if (planet[i].type == "moon_red")
+				context.drawImage(planetImg[2],planet[i].x-cameraX,planet[i].y-cameraY);
+				
+			if(planet[i].type == "nebulaA")
+				context.drawImage(nebulaA,planet[i].x-cameraX,planet[i].y-cameraY)
+			else if (planet[i].type == "nebulaB")
+				context.drawImage(nebulaB,planet[i].x-cameraX,planet[i].y-cameraY)
+			else if (planet[i].type == "nebulaC")
+				context.drawImage(nebulaC,planet[i].x-cameraX,planet[i].y-cameraY);
+		}
+		*/
 		
 	}
 	
@@ -334,7 +598,20 @@
 	
 	}
 	
-	function drawCanvas()
+	function preShake() 
+	{
+	  context.save();
+	  var dx = Math.random()*10;
+	  var dy = Math.random()*10;
+	  context.translate(dx, dy);  
+	}
+	
+	function postShake() 
+	{
+		context.restore();
+	}
+	
+	function drawCamera()
 	{
 		
 		var canvas = document.getElementById("primaryCanvas");
@@ -342,7 +619,7 @@
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
 		//old_drawStars();
-		
+		drawStars();
 		//document.getElementById("primaryCanvas").getContext('2d').drawImage(explosionSheet, 0, 0);
 		
 		
@@ -366,16 +643,39 @@
 		sCurr = "SCORE: " + playerScore;
 		var maxWidth = 500;//400
 		var lineHeight = 25;
+		
+		//context.font = '16pt Calibri';
+		//context.fillStyle = 'white';
+		
+		//context.font = "30px Arial";
 		context.font = '16pt Calibri';
-		context.fillStyle = 'white';
+		if(screenShakeDuration>0)
+			context.fillStyle = 'red';
+		else
+			context.fillStyle = 'darkred';
+		
 		wrapText(context, sCurr, (boundingWidth/2)-50, boundingHeight-100, maxWidth, lineHeight);
+		context.fillStyle = 'white';
 		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-50, boundingHeight-70, maxWidth, lineHeight);
 		
 	}
 	
 	function update()
 	{
-		drawCanvas();
+		
+		//drawCamera();
+		
+		if(screenShakeDuration>0)
+		{
+			screenShakeDuration--;
+			preShake();
+			drawCamera();
+			postShake();
+		}
+		else
+			drawCamera();
+		
+		
 		requestAnimationFrame(update);
 	}
 	
