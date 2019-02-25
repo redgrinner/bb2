@@ -131,13 +131,22 @@
 	
 	<script>
 	
-	nX = 0;
-	nY = 0;
+	//nX = 0;
+	//nY = 0;
+	
+	playerHealth = 3;
 	
 	gamePaused = false;
 	
 	explosionSheet = new Image();
 	explosionSheet.src = "images/explosion_total.png";
+	
+	
+	
+	heartEmpty = new Image();
+	heartEmpty.src = "images/heart_empty.png";
+	heartFull = new Image();
+	heartFull.src = "images/heart.png";
 	
 //	nebulaA = new Image();
 //	nebulaA.src = "images/neb1.png";
@@ -254,33 +263,20 @@
 		this.energyRegenTimer = 0;
 		this.energyRegenTimerMax = 10;
 		
-		if(this.type=="player")
+		if(this.type=="spy")
 		{
-			this.health = 10;
-			this.energy = 20;
-			this.team = "player";
-			this.weapon = "hornet"; //this.weapon = "HAL";
-			this.missiles = 0;//10
-		}
-		else if(this.type=="enemy_turret") 
-		{
-			this.team = "enemy";
-			this.image.src = "images/small/ninja_1.png"; //ninja_1
-			this.accelerationPower = 0;
 			this.maxSpeed = 0;
-			this.turningSpeed = 0.5;
-			//alert(this.image.src);
-			this.weapon = "blaster";
+			this.image.src = "images/ninja_3.png";
 		}
-		else if(this.type=="enemy") 
+		else if(this.type=="runner") 
 		{
-			this.team = "enemy";
-			this.image.src = "images/small/turtle_0.png";
-			this.accelerationPower = 0.05; //0.05 //0.2
-			this.turningSpeed = 5;
-			this.maxSpeed = 5;
-			this.turningSpeed = 5;
-			this.weapon = "particle";
+			this.maxSpeed = 4;
+			this.image.src = "images/ninja_0.png";
+		}
+		else if(this.type=="grunt") 
+		{
+			this.maxSpeed = 2;
+			this.image.src = "images/turtle_0.png";
 		}
 		else if(this.type=="slider") 
 		{
@@ -493,6 +489,7 @@
 		}
 		
 		//old stationary target
+		/*
 		if(getDist(nX+16,nY+16,x,y)<32)
 		{
 			nX = Math.random()*(boundingWidth-50);
@@ -502,7 +499,7 @@
 			screenShakeDuration = 15;
 			targetHit = true;
 		}
-		
+		*/
 		if(targetHit==false)
 		{
 			var explosion_colors = ['#FFFF00','#FFD700'];
@@ -532,7 +529,7 @@
 		
 		boundingX = 0;
 		boundingY = 0;
-		boundingWidth = x-50;
+		boundingWidth = x-30;
 		boundingHeight = y-30;
 		
 		context = document.getElementById('primaryCanvas').getContext('2d');
@@ -541,8 +538,9 @@
 		ship = [];
 		
 		ship[0] = new entity(100,50,"runner");
-		ship[1] = new entity(200,150,"runner");
-		ship[2] = new entity(300,100,"runner");
+		ship[1] = new entity(200,150,"grunt");
+		ship[2] = new entity(300,100,"grunt");
+		ship[3] = new entity(300,100,"spy");
 		
 		for (var i = 0; i < ship.length; i++)
 		{
@@ -552,8 +550,8 @@
 			ship[i].targetY = boundingHeight;
 		}
 		
-		nX = Math.floor(Math.random() * boundingWidth)+boundingX;;
-		nY = Math.floor(Math.random() * boundingHeight)+boundingY;;
+		//nX = Math.floor(Math.random() * boundingWidth)+boundingX;;
+		//nY = Math.floor(Math.random() * boundingHeight)+boundingY;;
 		playerScore = 0;
 		globalTimer = 60;
 		starTimer = 0;
@@ -591,6 +589,7 @@
 			star[star.length] = new heavenlyBody(rX,rY);
 		}
 		
+		playerHealth = 5;
 		
 	}
 	
@@ -771,7 +770,7 @@
 	//	document.getElementById("primaryCanvas").getContext('2d').drawImage(nebulaA, -150, -150);
 		
 		
-		document.getElementById("primaryCanvas").getContext('2d').drawImage(ninja, nX, nY);
+		//document.getElementById("primaryCanvas").getContext('2d').drawImage(ninja, nX, nY);
 		
 		for (var i = 0; i < ship.length; i++)
 		{
@@ -814,7 +813,13 @@
 		maxWidth = 300;
 		wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
 		
+		//playerHealth = 10;
 		
+		startingX = (playerHealth*16)-16;
+		for (var i = 0; i < playerHealth; i++)
+		{
+			document.getElementById("primaryCanvas").getContext('2d').drawImage(heartFull, startingX+(boundingWidth/2)-(32*i), boundingHeight-40);
+		}
 		
 	}
 	
@@ -1042,6 +1047,12 @@
 				ship[i].y = 50;
 				ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
 				ship[i].targetY = boundingHeight;
+				
+				screenShakeDuration = 15;
+				playerHealth--;
+				if(playerHealth <= 0)
+					hello();
+				
 			}
 			
 			if(ship[i].x > boundingWidth)
