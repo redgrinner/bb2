@@ -355,15 +355,54 @@
 	var obj = document.getElementById('primaryCanvas');
 	obj.addEventListener('touchmove', function(event) 
 	{
-		  // If there's exactly one finger inside this element
-		  if (event.targetTouches.length == 1) 
-		  {
-			var touch = event.targetTouches[0];
+
+		var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+		var ctx = canvas.getContext('2d');
+	
+		for (var z = 0; z < event.targetTouches.length; z++)
+		{
+			var touch = event.targetTouches[z];
+			var x = touch.pageX;
+			var y = touch.pageY;
+			
+			var targetHit = false;
+			for (var i = 0; i < ship.length; i++)
+			{
+				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+				{
+					targetHit = true;
+					playerScore = playerScore + 1;
+					var explosion_colors = ['blue','aqua','teal'];
+					screenShakeDuration = 15;
+					
+					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].y = 50;
+					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].targetY = boundingHeight;
+					
+				}
+						
+			}
+			
+			if(targetHit==false)
+			{
+				var explosion_colors = ['#FFFF00','#FFD700'];
+			}
+			var explo = new ExplosionClass(x, y, explosion_colors,3);
+			explo.ctx = ctx;			
+			explosions.push(explo);
+			
+		}
+
+		// If there's exactly one finger inside this element
+		//  if (event.targetTouches.length == 1) 
+		//  {
+		//	var touch = event.targetTouches[0];
 			//touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
 			// Place element where the finger is
 			//obj.style.left = touch.pageX + 'px';
 			//obj.style.top = touch.pageY + 'px';
-		  }
+		  //}
 	}, false);
 	
 	obj.addEventListener('touchstart', function(event) 
@@ -374,6 +413,46 @@
 	obj.addEventListener('touchend', function(event) 
 	{
 		touchText = "touches: " + event.targetTouches.length;
+		
+		var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+		var ctx = canvas.getContext('2d');
+	
+		for (var z = 0; z < event.targetTouches.length; z++)
+		{
+			var touch = event.targetTouches[z];
+			var x = touch.pageX;
+			var y = touch.pageY;
+			
+			var targetHit = false;
+			for (var i = 0; i < ship.length; i++)
+			{
+				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+				{
+					targetHit = true;
+					playerScore = playerScore + 1;
+					var explosion_colors = ['blue','aqua','teal'];
+					screenShakeDuration = 15;
+					
+					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].y = 50;
+					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].targetY = boundingHeight;
+					
+				}
+						
+			}
+			
+			if(targetHit==false)
+			{
+				var explosion_colors = ['#FFFF00','#FFD700'];
+			}
+			var explo = new ExplosionClass(x, y, explosion_colors,3);
+			explo.ctx = ctx;			
+			explosions.push(explo);
+			
+		}
+		
+		
 	}, false);
 	
 	function canvasClick(event)
@@ -392,7 +471,6 @@
 		var ctx = canvas.getContext('2d');
 		// Colors used for the explosion
 		//var explosion_colors = ['#FFFF00','#FFD700','#FFFFCC','#FFFF99','#FFFF66','#CCCC00','#999900'];
-		var explosion_colors = ['#FFFF00','#FFD700'];
 		
 		//check for hit on moving ships
 		var targetHit = false;
