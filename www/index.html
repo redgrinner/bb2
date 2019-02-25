@@ -359,11 +359,21 @@
 		  if (event.targetTouches.length == 1) 
 		  {
 			var touch = event.targetTouches[0];
-			touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
+			//touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
 			// Place element where the finger is
 			//obj.style.left = touch.pageX + 'px';
 			//obj.style.top = touch.pageY + 'px';
 		  }
+	}, false);
+	
+	obj.addEventListener('touchstart', function(event) 
+	{
+		touchText = "touches: " + event.targetTouches.length;
+	}, false);
+	
+	obj.addEventListener('touchend', function(event) 
+	{
+		touchText = "touches: " + event.targetTouches.length;
 	}, false);
 	
 	function canvasClick(event)
@@ -722,7 +732,9 @@
 		wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
 		context.fillStyle = 'white';
 		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
-		wrapText(context, touchText, (boundingWidth/2)-30, 50, maxWidth, lineHeight);
+		
+		maxWidth = 300;
+		wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
 		
 		
 		
