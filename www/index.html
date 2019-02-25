@@ -147,6 +147,8 @@
 	
 	ship = [];
 	
+	touchText = "";
+	
 	//starScape = new Image();
 	//starFog = new Image();
 	//starScape.src = "images/newStars2.png";
@@ -349,6 +351,20 @@
         }
         ctx.fillText(line, x, y);
     }
+	
+	var obj = document.getElementById('primaryCanvas');
+	obj.addEventListener('touchmove', function(event) 
+	{
+		  // If there's exactly one finger inside this element
+		  if (event.targetTouches.length == 1) 
+		  {
+			var touch = event.targetTouches[0];
+			touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
+			// Place element where the finger is
+			//obj.style.left = touch.pageX + 'px';
+			//obj.style.top = touch.pageY + 'px';
+		  }
+	}, false);
 	
 	function canvasClick(event)
 	{
@@ -706,6 +722,9 @@
 		wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
 		context.fillStyle = 'white';
 		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+		wrapText(context, touchText, (boundingWidth/2)-30, 50, maxWidth, lineHeight);
+		
+		
 		
 	}
 	
