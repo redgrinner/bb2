@@ -33,6 +33,11 @@
 		  width: device-width;
 		}
 		
+		@font-face {
+		font-family: "ineptic";
+		src: url(font/font_ineptic.otf) format("truetype");
+		}
+		
 		body 
 		{
 			color: #E9E9E9;
@@ -83,23 +88,58 @@
 			z-index:2;
 			/*background-image: radial-gradient(limegreen, darkgreen);*/ /*weird gradient bg*/
 		}
+				
+		.titleText{
+            color: peru;
+            font-size: 50px;
+			font-family: "ineptic", Verdana, Tahoma;
+        } 
 		
-		.controlDiv
+		.center
 		{
-			z-index:3;
+			text-align:center;
+			-webkit-border-radius: 0.75em;
+			/*-moz-border-radius: 0.75em;*/
+			border-radius:0.75em;			
+			/*background-color:rgba(33, 33, 33, 0.6);*/
+			color:#ffffff;
+			padding:25px;
+			
+			margin: 0;
 			position: absolute;
-			top:10;
-			left:10;
-			border: 1px solid rgba(255,0,0,1);
-			border-radius: 12px;
+			top: 40%;
+			left: 50%;
+			transform: translate(-50%, -30%);
+	
+		}
+		.adjustedCenter
+		{
+			box-sizing: border-box;
+			text-align:center;
+			-webkit-border-radius: 0.75em;
+			/*-moz-border-radius: 0.75em;*/
+			border-radius:0.75em;			
+			/*background-color:rgba(33, 33, 33, 0.6);*/
+			color:#ffffff;
+			padding:10px; /*25px*/
 		}
 		
+		.menuScreen
+		{
+			position: absolute;
+			z-index:9;
+			background:#232323;
+			border: 0px solid orange;
+			display: block;
+			/*height:800px;*/
+			
+		}
 	
 	</style>
 	
 </head>
 
-<body onload="hello();">
+<body onload="startingSetup();">
    
    <!--
    <div class="app">
@@ -115,13 +155,38 @@
 	
 	<canvas id="primaryCanvas" class="primaryCanvas" onclick="canvasClick(event)"></canvas>
 	
-	<!--
-	
-	<div id="controlDiv" class="controlDiv">
-		<span id="wth">wth</span> <br />
-		<input type ="button" value ="START" style="width:325px;" onclick="doSomething();" class="button2"><br />
+	<div id="menuScreen" class="menuScreen center">
+		<span class="titleText" style="color:orange">E X P L O D E</span>
+		<br />
+		<br />
+		<span id="output">Prevent the enemy from breaching our defenses.</span> <br />
+		<br />
+		<input type ="button" value ="START" style="width:325px;" onclick="continueGame();" class="button2"><br />
 	</div>
-	-->
+	
+	<div id="loseScreen" class="menuScreen center">
+		<span class="titleText" style="color:orange">E X P L O D E</span>
+		<br />
+		<br />
+		<span id="output_fail">You have failed to stop the enemy.</span> <br />
+		<br />
+		<span id="score_fail">SCORE: 0</span> <br />
+		<span id="level_fail">LEVEL: 0</span> <br />
+		<br />
+		<input type ="button" value ="RESTART" style="width:325px;" onclick="continueGame();" class="button2"><br />
+	</div>
+	
+	<div id="winScreen" class="menuScreen center">
+		<span class="titleText" style="color:orange">E X P L O D E</span>
+		<br />
+		<br />
+		<span id="output_win">You have successfully survived the wave.</span> <br />
+		<br />
+		<span id="score_win">SCORE: 0</span> <br />
+		<span id="level_win">LEVEL: 0</span> <br />
+		<br />
+		<input type ="button" value ="CONTINUE" style="width:325px;" onclick="continueGame();" class="button2"><br />
+	</div>
 	
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
@@ -133,10 +198,11 @@
 	
 	//nX = 0;
 	//nY = 0;
-	
+		
 	playerHealth = 3;
+	playerLevel = 1;
 	
-	gamePaused = false;
+	gameStarted = false;
 	
 	explosionSheet = new Image();
 	explosionSheet.src = "images/explosion_total.png";
@@ -352,169 +418,226 @@
 	obj.addEventListener('touchmove', function(event) 
 	{
 
-		var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-		var ctx = canvas.getContext('2d');
-	
-		for (var z = 0; z < event.targetTouches.length; z++)
+		if(gameStarted)
 		{
-			var touch = event.targetTouches[z];
-			var x = touch.pageX;
-			var y = touch.pageY;
-			
-			var targetHit = false;
-			for (var i = 0; i < ship.length; i++)
+		
+			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+			var ctx = canvas.getContext('2d');
+		
+			for (var z = 0; z < event.targetTouches.length; z++)
 			{
-				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+				var touch = event.targetTouches[z];
+				var x = touch.pageX;
+				var y = touch.pageY;
+				
+				var targetHit = false;
+				for (var i = 0; i < ship.length; i++)
 				{
-					targetHit = true;
-					playerScore = playerScore + 1;
-					var explosion_colors = ['blue','aqua','teal'];
-					screenShakeDuration = 15;
-					
-					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].y = 50;
-					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].targetY = boundingHeight;
-					
-				}
+					if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+					{
+						targetHit = true;
+						playerScore = playerScore + 1;
+						var explosion_colors = ['blue','aqua','teal'];
+						screenShakeDuration = 15;
 						
+						ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].y = 50;
+						if(ship[i].type=="spy")
+							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
+						ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].targetY = boundingHeight;
+						
+					}
+							
+				}
+				
+				if(targetHit==false)
+				{
+					var explosion_colors = ['#FFFF00','#FFD700'];
+				}
+				var explo = new ExplosionClass(x, y, explosion_colors,3);
+				explo.ctx = ctx;			
+				explosions.push(explo);
+				
 			}
-			
-			if(targetHit==false)
-			{
-				var explosion_colors = ['#FFFF00','#FFD700'];
-			}
-			var explo = new ExplosionClass(x, y, explosion_colors,3);
-			explo.ctx = ctx;			
-			explosions.push(explo);
-			
-		}
 
-		// If there's exactly one finger inside this element
-		//  if (event.targetTouches.length == 1) 
-		//  {
-		//	var touch = event.targetTouches[0];
-			//touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
-			// Place element where the finger is
-			//obj.style.left = touch.pageX + 'px';
-			//obj.style.top = touch.pageY + 'px';
-		  //}
+			// If there's exactly one finger inside this element
+			//  if (event.targetTouches.length == 1) 
+			//  {
+			//	var touch = event.targetTouches[0];
+				//touchText = touch.pageX + 'px; ' + touch.pageY + 'px';
+				// Place element where the finger is
+				//obj.style.left = touch.pageX + 'px';
+				//obj.style.top = touch.pageY + 'px';
+			  //}
+		  
+		}
+		
 	}, false);
 	
 	obj.addEventListener('touchstart', function(event) 
 	{
-		touchText = "touches: " + event.targetTouches.length;
+		touchText = "";
+		//touchText = "touches: " + event.targetTouches.length;
 	}, false);
 	
 	obj.addEventListener('touchend', function(event) 
 	{
-		touchText = "touches: " + event.targetTouches.length;
 		
-		var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-		var ctx = canvas.getContext('2d');
-	
-		for (var z = 0; z < event.targetTouches.length; z++)
+		if(gameStarted)
 		{
-			var touch = event.targetTouches[z];
-			var x = touch.pageX;
-			var y = touch.pageY;
-			
-			var targetHit = false;
-			for (var i = 0; i < ship.length; i++)
-			{
-				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
-				{
-					targetHit = true;
-					playerScore = playerScore + 1;
-					var explosion_colors = ['blue','aqua','teal'];
-					screenShakeDuration = 15;
-					
-					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].y = 50;
-					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].targetY = boundingHeight;
-					
-				}
-						
-			}
-			
-			if(targetHit==false)
-			{
-				var explosion_colors = ['#FFFF00','#FFD700'];
-			}
-			var explo = new ExplosionClass(x, y, explosion_colors,3);
-			explo.ctx = ctx;			
-			explosions.push(explo);
-			
-		}
 		
+			touchText = "touches: " + event.targetTouches.length;
+			
+			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+			var ctx = canvas.getContext('2d');
+		
+			for (var z = 0; z < event.targetTouches.length; z++)
+			{
+				var touch = event.targetTouches[z];
+				var x = touch.pageX;
+				var y = touch.pageY;
+				
+				var targetHit = false;
+				for (var i = 0; i < ship.length; i++)
+				{
+					if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+					{
+						targetHit = true;
+						playerScore = playerScore + 1;
+						var explosion_colors = ['blue','aqua','teal'];
+						screenShakeDuration = 15;
+						
+						ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].y = 50;
+						if(ship[i].type=="spy")
+							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
+						ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].targetY = boundingHeight;
+						
+					}
+							
+				}
+				
+				if(targetHit==false)
+				{
+					var explosion_colors = ['#FFFF00','#FFD700'];
+				}
+				var explo = new ExplosionClass(x, y, explosion_colors,3);
+				explo.ctx = ctx;			
+				explosions.push(explo);
+				
+			}
+		
+		}		
 		
 	}, false);
 	
 	function canvasClick(event)
 	{
-		var x = event.clientX;
-		var y = event.clientY;
-		//document.getElementById("wth").innerHTML = "yes yes yes yes";
 		
-		//exp[exp.length] = new explosion(x,y,"exp");
-		
-		
-		
-		
-		var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-		// The canvas context
-		var ctx = canvas.getContext('2d');
-		// Colors used for the explosion
-		//var explosion_colors = ['#FFFF00','#FFD700','#FFFFCC','#FFFF99','#FFFF66','#CCCC00','#999900'];
-		
-		//check for hit on moving ships
-		var targetHit = false;
-		for (var i = 0; i < ship.length; i++)
-		{
-			if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+		if(gameStarted)
 			{
-				targetHit = true;
-				playerScore = playerScore + 1;
+			
+			var x = event.clientX;
+			var y = event.clientY;
+			//document.getElementById("wth").innerHTML = "yes yes yes yes";
+			
+			//exp[exp.length] = new explosion(x,y,"exp");
+			
+			
+			
+			
+			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+			// The canvas context
+			var ctx = canvas.getContext('2d');
+			// Colors used for the explosion
+			//var explosion_colors = ['#FFFF00','#FFD700','#FFFFCC','#FFFF99','#FFFF66','#CCCC00','#999900'];
+			
+			//check for hit on moving ships
+			var targetHit = false;
+			for (var i = 0; i < ship.length; i++)
+			{
+				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
+				{
+					targetHit = true;
+					playerScore = playerScore + 1;
+					var explosion_colors = ['blue','aqua','teal'];
+					screenShakeDuration = 15;
+					
+					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].y = 50;
+					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+					ship[i].targetY = boundingHeight;
+					
+				}
+						
+			}
+			
+			//old stationary target
+			/*
+			if(getDist(nX+16,nY+16,x,y)<32)
+			{
+				nX = Math.random()*(boundingWidth-50);
+				nY = Math.random()*(boundingHeight-50);
+				playerScore = playerScore +3;
 				var explosion_colors = ['blue','aqua','teal'];
 				screenShakeDuration = 15;
-				
-				ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-				ship[i].y = 50;
-				ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-				ship[i].targetY = boundingHeight;
-				
+				targetHit = true;
 			}
-					
+			*/
+			if(targetHit==false)
+			{
+				var explosion_colors = ['#FFFF00','#FFD700'];
+			}
+			
+			// Create a new explosion
+			var explo = new ExplosionClass(x, y, explosion_colors,3);
+			explo.ctx = ctx;			
+			// Add the explosion to the explosions list.
+			explosions.push(explo);
 		}
-		
-		//old stationary target
-		/*
-		if(getDist(nX+16,nY+16,x,y)<32)
-		{
-			nX = Math.random()*(boundingWidth-50);
-			nY = Math.random()*(boundingHeight-50);
-			playerScore = playerScore +3;
-			var explosion_colors = ['blue','aqua','teal'];
-			screenShakeDuration = 15;
-			targetHit = true;
-		}
-		*/
-		if(targetHit==false)
-		{
-			var explosion_colors = ['#FFFF00','#FFD700'];
-		}
-		
-		// Create a new explosion
-		var explo = new ExplosionClass(x, y, explosion_colors,3);
-		explo.ctx = ctx;			
-		// Add the explosion to the explosions list.
-		explosions.push(explo);
 		
 	}
 	
-	function hello()
+	function continueGame()
 	{
+		gameStarted = true;
+		document.getElementById('menuScreen').style.display = "none";
+		document.getElementById('winScreen').style.display = "none";
+		document.getElementById('loseScreen').style.display = "none";
+		//globalTimer = 60;
+	}
+	
+	function showDefeat()
+	{
+		gameStarted = false;
+		document.getElementById('score_fail').innerHTML = "SCORE: " + playerScore;
+		document.getElementById('level_fail').innerHTML = "LEVEL: " + playerLevel;
+		playerScore = 0;
+		playerLevel = 1;
+		hello();
+		document.getElementById('loseScreen').style.display = "block";
+	}
+	
+	function showWin()
+	{
+		gameStarted = false;
+		document.getElementById('score_win').innerHTML = "SCORE: " + playerScore;
+		document.getElementById('level_win').innerHTML = "LEVEL: " + playerLevel;
+		playerLevel++;
+		hello();
+		document.getElementById('winScreen').style.display = "block";
+	}
+	
+	function startingSetup()
+	{
+		
+		gameStarted = false;
+		//document.getElementById('menuScreen').style.display = "none";
+		document.getElementById('loseScreen').style.display = "none";
+		document.getElementById('winScreen').style.display = "none";
+		
 		var w = window,
 		d = document,
 		e = d.documentElement,
@@ -534,27 +657,12 @@
 		
 		context = document.getElementById('primaryCanvas').getContext('2d');
 		
-		exp = [];
-		ship = [];
 		
-		ship[0] = new entity(100,50,"runner");
-		ship[1] = new entity(200,150,"grunt");
-		ship[2] = new entity(300,100,"grunt");
-		ship[3] = new entity(300,100,"spy");
-		
-		for (var i = 0; i < ship.length; i++)
-		{
-			ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-			ship[i].y = 50;
-			ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-			ship[i].targetY = boundingHeight;
-		}
 		
 		//nX = Math.floor(Math.random() * boundingWidth)+boundingX;;
 		//nY = Math.floor(Math.random() * boundingHeight)+boundingY;;
 		playerScore = 0;
 		globalTimer = 60;
-		starTimer = 0;
 		
 		
 		shipDY = 0;
@@ -589,7 +697,110 @@
 			star[star.length] = new heavenlyBody(rX,rY);
 		}
 		
-		playerHealth = 5;
+		playerHealth = 1; //5
+		hello();
+	}
+	
+	function hello()
+	{
+		
+		gameStarted = false;
+		
+		exp = [];
+		ship = [];
+		
+		globalTimer = 60;
+		
+		if(playerLevel<=1)
+		{
+			globalTimer = 10;
+			ship[0] = new entity(100,50,"spy");
+			ship[1] = new entity(200,150,"spy");
+			ship[2] = new entity(300,100,"spy");
+			ship[3] = new entity(300,100,"grunt");
+		}
+		
+		else if(playerLevel==2)
+		{
+			globalTimer = 20;
+			ship[0] = new entity(100,50,"spy");
+			ship[1] = new entity(200,150,"spy");
+			ship[2] = new entity(300,100,"grunt");
+			ship[3] = new entity(300,100,"grunt");
+		}
+		
+		else if(playerLevel==3)
+		{
+			globalTimer = 30;
+			ship[0] = new entity(100,50,"grunt");
+			ship[1] = new entity(200,150,"grunt");
+			ship[2] = new entity(300,100,"grunt");
+			ship[3] = new entity(300,100,"grunt");
+		}
+		
+		else if(playerLevel==4)
+		{
+			globalTimer = 40;
+			ship[0] = new entity(100,50,"runner");
+			ship[1] = new entity(200,150,"grunt");
+			ship[2] = new entity(300,100,"grunt");
+			ship[3] = new entity(300,100,"grunt");
+			ship[4] = new entity(300,100,"grunt");
+		}
+		
+		else if(playerLevel==5)
+		{
+			globalTimer = 50;
+			ship[0] = new entity(100,50,"runner");
+			ship[1] = new entity(200,150,"runner");
+			ship[2] = new entity(300,100,"grunt");
+			ship[3] = new entity(300,100,"grunt");
+			ship[4] = new entity(300,100,"grunt");
+		}
+		
+		else
+		{
+			globalTimer = 60;
+			ship[0] = new entity(100,50,"runner");
+			ship[1] = new entity(200,150,"runner");
+			ship[2] = new entity(300,100,"runner");
+			ship[3] = new entity(300,100,"grunt");
+			ship[4] = new entity(300,100,"grunt");
+			ship[5] = new entity(300,100,"grunt");
+		}
+		
+		for (var i = 0; i < ship.length; i++)
+		{
+			ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+			ship[i].y = 50;
+			if(ship[i].type=="spy")
+				ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
+			ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+			ship[i].targetY = boundingHeight;
+		}
+		
+		//playerScore = 0;
+		
+		
+		
+		screenShakeDuration = 0;
+		
+		
+		/*
+		player = new entity(528,488,"player");
+		player.dx = 0;
+		player.dy = -1;
+		
+		star = [];
+		for (var i = 0; i < 270; i++) //500 //270
+		{
+			var rX = Math.floor(Math.random() * boundingWidth)+boundingX;
+			var rY = Math.floor(Math.random() * boundingHeight)+boundingY;
+			star[star.length] = new heavenlyBody(rX,rY);
+		}
+		*/
+		
+		playerHealth = 1; //5
 		
 	}
 	
@@ -772,12 +983,15 @@
 		
 		//document.getElementById("primaryCanvas").getContext('2d').drawImage(ninja, nX, nY);
 		
-		for (var i = 0; i < ship.length; i++)
+		if(gameStarted)
 		{
-			drawR(ship[i].image,ship[i].x,ship[i].y,ship[i].rot+90,"primaryCanvas")
+		
+			for (var i = 0; i < ship.length; i++)
+			{
+				drawR(ship[i].image,ship[i].x,ship[i].y,ship[i].rot+90,"primaryCanvas")
+			}
+		
 		}
-		
-		
 		//draw explosions
 		for (var i = exp.length-1; i >= 0; i--)
 		{
@@ -806,12 +1020,17 @@
 		else
 			context.fillStyle = 'darkred';
 		
-		wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
-		context.fillStyle = 'white';
-		wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+		if(gameStarted)
+		{
 		
-		maxWidth = 300;
-		wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
+			wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
+			context.fillStyle = 'white';
+			wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+			
+			//maxWidth = 300;
+			//wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
+		
+		}
 		
 		//playerHealth = 10;
 		
@@ -1051,8 +1270,10 @@
 				screenShakeDuration = 15;
 				playerHealth--;
 				if(playerHealth <= 0)
-					hello();
-				
+				{
+					showDefeat();
+					//hello();
+				}
 			}
 			
 			if(ship[i].x > boundingWidth)
@@ -1086,7 +1307,8 @@
 		
 		//drawCamera();
 		
-		handleShipMovement();
+		if(gameStarted)
+			handleShipMovement();
 		
 		if(screenShakeDuration>0)
 		{
@@ -1104,10 +1326,14 @@
 	
 	function timedInterval()
 	{
-		globalTimer--;
-		if(globalTimer < 0)
+		if(gameStarted)
 		{
-			hello();
+			globalTimer--;
+			if(globalTimer < 0)
+			{
+				showWin();
+				//hello();
+			}
 		}
 	}
 	
