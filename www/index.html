@@ -131,6 +131,7 @@
 			background:#232323;
 			border: 0px solid orange;
 			display: block;
+			width: 320px;
 			/*height:800px;*/
 			
 		}
@@ -567,6 +568,8 @@
 					
 					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
 					ship[i].y = 50;
+					if(ship[i].type=="spy")
+							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
 					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
 					ship[i].targetY = boundingHeight;
 					
