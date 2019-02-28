@@ -332,11 +332,13 @@
 		
 		if(this.type=="spy")
 		{
+			this.health = 1;
 			this.maxSpeed = 0;
 			this.image.src = "images/ninja_3.png";
 		}
 		else if(this.type=="runner") 
 		{
+			this.health = 1;
 			this.maxSpeed = 4;
 			this.image.src = "images/ninja_0.png";
 		}
@@ -415,10 +417,8 @@
         ctx.fillText(line, x, y);
     }
 	
-	var obj = document.getElementById('primaryCanvas');
-	obj.addEventListener('touchmove', function(event) 
+	function targetEnemy(event)
 	{
-
 		if(gameStarted)
 		{
 		
@@ -441,13 +441,19 @@
 						var explosion_colors = ['blue','aqua','teal'];
 						screenShakeDuration = 15;
 						
-						ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].x = Math.floor(Math.random() * (boundingWidth-30))+30;
+						
+						//ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
 						ship[i].y = 50;
 						if(ship[i].type=="spy")
 							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
-						ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-						ship[i].targetY = boundingHeight;
+						//ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+						ship[i].targetX = Math.floor(Math.random() * (boundingWidth-30))+30;
 						
+						ship[i].targetY = boundingHeight;
+						enemiesLeft--;
+						if(enemiesLeft<=0)
+							showWin();
 					}
 							
 				}
@@ -473,6 +479,17 @@
 			  //}
 		  
 		}
+	}
+	
+	function respawnEnemy()
+	{
+		//idk
+	}
+	
+	var obj = document.getElementById('primaryCanvas');
+	obj.addEventListener('touchmove', function(event) 
+	{
+		targetEnemy(event);
 		
 	}, false);
 	
@@ -484,7 +501,8 @@
 	
 	obj.addEventListener('touchend', function(event) 
 	{
-		
+		targetEnemy(event);
+		/*
 		if(gameStarted)
 		{
 		
@@ -531,14 +549,16 @@
 			}
 		
 		}		
+		*/
 		
 	}, false);
 	
 	function canvasClick(event)
 	{
-		
+		//targetEnemy(event);
+		/*
 		if(gameStarted)
-			{
+		{
 			
 			var x = event.clientX;
 			var y = event.clientY;
@@ -577,18 +597,6 @@
 						
 			}
 			
-			//old stationary target
-			/*
-			if(getDist(nX+16,nY+16,x,y)<32)
-			{
-				nX = Math.random()*(boundingWidth-50);
-				nY = Math.random()*(boundingHeight-50);
-				playerScore = playerScore +3;
-				var explosion_colors = ['blue','aqua','teal'];
-				screenShakeDuration = 15;
-				targetHit = true;
-			}
-			*/
 			if(targetHit==false)
 			{
 				var explosion_colors = ['#FFFF00','#FFD700'];
@@ -600,7 +608,7 @@
 			// Add the explosion to the explosions list.
 			explosions.push(explo);
 		}
-		
+		*/
 	}
 	
 	function continueGame()
@@ -666,7 +674,7 @@
 		//nY = Math.floor(Math.random() * boundingHeight)+boundingY;;
 		playerScore = 0;
 		globalTimer = 60;
-		
+		enemiesLeft = 20;
 		
 		shipDY = 0;
 		shipDX = 0;
@@ -717,6 +725,7 @@
 		if(playerLevel<=1)
 		{
 			globalTimer = 10;
+			enemiesLeft = 20;
 			ship[0] = new entity(100,50,"spy");
 			ship[1] = new entity(200,150,"spy");
 			ship[2] = new entity(300,100,"spy");
@@ -726,6 +735,7 @@
 		else if(playerLevel==2)
 		{
 			globalTimer = 20;
+			enemiesLeft = 30;
 			ship[0] = new entity(100,50,"spy");
 			ship[1] = new entity(200,150,"spy");
 			ship[2] = new entity(300,100,"grunt");
@@ -735,6 +745,7 @@
 		else if(playerLevel==3)
 		{
 			globalTimer = 30;
+			enemiesLeft = 40;
 			ship[0] = new entity(100,50,"grunt");
 			ship[1] = new entity(200,150,"grunt");
 			ship[2] = new entity(300,100,"grunt");
@@ -744,6 +755,7 @@
 		else if(playerLevel==4)
 		{
 			globalTimer = 40;
+			enemiesLeft = 50;
 			ship[0] = new entity(100,50,"runner");
 			ship[1] = new entity(200,150,"grunt");
 			ship[2] = new entity(300,100,"grunt");
@@ -754,6 +766,7 @@
 		else if(playerLevel==5)
 		{
 			globalTimer = 50;
+			enemiesLeft = 50;
 			ship[0] = new entity(100,50,"runner");
 			ship[1] = new entity(200,150,"runner");
 			ship[2] = new entity(300,100,"grunt");
@@ -764,6 +777,7 @@
 		else
 		{
 			globalTimer = 60;
+			enemiesLeft = 50;
 			ship[0] = new entity(100,50,"runner");
 			ship[1] = new entity(200,150,"runner");
 			ship[2] = new entity(300,100,"runner");
@@ -1028,7 +1042,9 @@
 		
 			wrapText(context, sCurr, (boundingWidth/2)-30, boundingHeight-50, maxWidth, lineHeight);
 			context.fillStyle = 'white';
-			wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+			
+			//wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+			wrapText(context, "ENEMIES LEFT: " +enemiesLeft, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
 			
 			//maxWidth = 300;
 			//wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
@@ -1334,8 +1350,8 @@
 			globalTimer--;
 			if(globalTimer < 0)
 			{
-				showWin();
-				//hello();
+				//doNothing()
+				//showWin();
 			}
 		}
 	}
