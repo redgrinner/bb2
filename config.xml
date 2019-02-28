@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="za.co.websmith.explode" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="za.co.websmith.explode" version="0.0.3" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Explode</name>
     <description>
-        You have 60s to live. Might as well explode.
+        The fate of the galaxy rests in your hands.
     </description>
     <author email="redgrinner@gmail.com" href="http://www.websmith.co.za">
         WebSmith
