@@ -200,7 +200,7 @@
 	//nX = 0;
 	//nY = 0;
 		
-	playerHealth = 3;
+	playerHealth = 5;
 	playerLevel = 1;
 	
 	gameStarted = false;
@@ -416,57 +416,36 @@
         }
         ctx.fillText(line, x, y);
     }
-	
-	function targetEnemy(event)
+		
+	function targetShip(x,y)
 	{
 		if(gameStarted)
 		{
 		
-			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-			var ctx = canvas.getContext('2d');
-		
-			for (var z = 0; z < event.targetTouches.length; z++)
+			//var canvas = document.getElementById('primaryCanvas'); //gameCanvas
+			//var ctx = canvas.getContext('2d');
+			
+			var targetHit = false;
+			for (var i = 0; i < ship.length; i++)
 			{
-				var touch = event.targetTouches[z];
-				var x = touch.pageX;
-				var y = touch.pageY;
-				
-				var targetHit = false;
-				for (var i = 0; i < ship.length; i++)
+				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
 				{
-					if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
-					{
-						targetHit = true;
-						playerScore = playerScore + 1;
-						var explosion_colors = ['blue','aqua','teal'];
-						screenShakeDuration = 15;
-						
-						ship[i].x = Math.floor(Math.random() * (boundingWidth-30))+30;
-						
-						//ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-						ship[i].y = 50;
-						if(ship[i].type=="spy")
-							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
-						//ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-						ship[i].targetX = Math.floor(Math.random() * (boundingWidth-30))+30;
-						
-						ship[i].targetY = boundingHeight;
-						enemiesLeft--;
-						if(enemiesLeft<=0)
-							showWin();
-					}
+					targetHit = true;
+					ship[i].health = ship[i].health - 100;
+					var explosion_colors = ['blue','aqua','teal'];
+				}
 							
-				}
-				
-				if(targetHit==false)
-				{
-					var explosion_colors = ['#FFFF00','#FFD700'];
-				}
-				var explo = new ExplosionClass(x, y, explosion_colors,3);
-				explo.ctx = ctx;			
-				explosions.push(explo);
-				
 			}
+			
+			if(targetHit==false)
+			{
+				var explosion_colors = ['#FFFF00','#FFD700'];
+			}
+			var explo = new ExplosionClass(x, y, explosion_colors,3);
+			explo.ctx = context//ctx;			
+			explosions.push(explo);
+				
+			
 
 			// If there's exactly one finger inside this element
 			//  if (event.targetTouches.length == 1) 
@@ -481,15 +460,29 @@
 		}
 	}
 	
-	function respawnEnemy()
+	function respawnShip(p)
 	{
-		//idk
+		ship[p].x = 30+ Math.floor(Math.random() * (boundingWidth-80))+boundingX;
+		ship[p].y = 50;
+		if(ship[p].type=="spy")
+			ship[p].y = 50+Math.floor(Math.random() * (boundingHeight-140))+boundingY;
+		ship[p].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
+		ship[p].targetY = boundingHeight;
 	}
 	
 	var obj = document.getElementById('primaryCanvas');
 	obj.addEventListener('touchmove', function(event) 
 	{
-		targetEnemy(event);
+		if(gameStarted)
+		{
+			for (var z = 0; z < event.targetTouches.length; z++)
+			{
+				var touch = event.targetTouches[z];
+				var x = touch.pageX;
+				var y = touch.pageY;
+				targetShip(x,y);
+			}
+		}
 		
 	}, false);
 	
@@ -501,114 +494,28 @@
 	
 	obj.addEventListener('touchend', function(event) 
 	{
-		targetEnemy(event);
-		/*
 		if(gameStarted)
 		{
-		
-			touchText = "touches: " + event.targetTouches.length;
-			
-			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-			var ctx = canvas.getContext('2d');
-		
 			for (var z = 0; z < event.targetTouches.length; z++)
 			{
 				var touch = event.targetTouches[z];
 				var x = touch.pageX;
 				var y = touch.pageY;
-				
-				var targetHit = false;
-				for (var i = 0; i < ship.length; i++)
-				{
-					if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
-					{
-						targetHit = true;
-						playerScore = playerScore + 1;
-						var explosion_colors = ['blue','aqua','teal'];
-						screenShakeDuration = 15;
-						
-						ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-						ship[i].y = 50;
-						if(ship[i].type=="spy")
-							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
-						ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-						ship[i].targetY = boundingHeight;
-						
-					}
-							
-				}
-				
-				if(targetHit==false)
-				{
-					var explosion_colors = ['#FFFF00','#FFD700'];
-				}
-				var explo = new ExplosionClass(x, y, explosion_colors,3);
-				explo.ctx = ctx;			
-				explosions.push(explo);
-				
+				targetShip(x,y);
 			}
+		}
 		
-		}		
-		*/
 		
 	}, false);
 	
 	function canvasClick(event)
 	{
-		//targetEnemy(event);
-		/*
 		if(gameStarted)
 		{
-			
 			var x = event.clientX;
 			var y = event.clientY;
-			//document.getElementById("wth").innerHTML = "yes yes yes yes";
-			
-			//exp[exp.length] = new explosion(x,y,"exp");
-			
-			
-			
-			
-			var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-			// The canvas context
-			var ctx = canvas.getContext('2d');
-			// Colors used for the explosion
-			//var explosion_colors = ['#FFFF00','#FFD700','#FFFFCC','#FFFF99','#FFFF66','#CCCC00','#999900'];
-			
-			//check for hit on moving ships
-			var targetHit = false;
-			for (var i = 0; i < ship.length; i++)
-			{
-				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
-				{
-					targetHit = true;
-					playerScore = playerScore + 1;
-					var explosion_colors = ['blue','aqua','teal'];
-					screenShakeDuration = 15;
-					
-					ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].y = 50;
-					if(ship[i].type=="spy")
-							ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
-					ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-					ship[i].targetY = boundingHeight;
-					
-				}
-						
-			}
-			
-			if(targetHit==false)
-			{
-				var explosion_colors = ['#FFFF00','#FFD700'];
-			}
-			
-			// Create a new explosion
-			var explo = new ExplosionClass(x, y, explosion_colors,3);
-			explo.ctx = ctx;			
-			// Add the explosion to the explosions list.
-			explosions.push(explo);
+			targetShip(x,y);
 		}
-		*/
 	}
 	
 	function continueGame()
@@ -627,6 +534,7 @@
 		document.getElementById('level_fail').innerHTML = "LEVEL: " + playerLevel;
 		playerScore = 0;
 		playerLevel = 1;
+		playerHealth = 5;
 		hello();
 		document.getElementById('loseScreen').style.display = "block";
 	}
@@ -708,7 +616,7 @@
 			star[star.length] = new heavenlyBody(rX,rY);
 		}
 		
-		playerHealth = 1; //5
+		playerHealth = 5; //5
 		hello();
 	}
 	
@@ -725,75 +633,76 @@
 		if(playerLevel<=1)
 		{
 			globalTimer = 10;
-			enemiesLeft = 20;
-			ship[0] = new entity(100,50,"spy");
-			ship[1] = new entity(200,150,"spy");
-			ship[2] = new entity(300,100,"spy");
-			ship[3] = new entity(300,100,"grunt");
+			enemiesLeft = 10;
+			ship[0] = new entity(0,0,"spy");
+			ship[1] = new entity(0,0,"spy");
+			ship[2] = new entity(0,0,"spy");
+			ship[3] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==2)
 		{
 			globalTimer = 20;
 			enemiesLeft = 30;
-			ship[0] = new entity(100,50,"spy");
-			ship[1] = new entity(200,150,"spy");
-			ship[2] = new entity(300,100,"grunt");
-			ship[3] = new entity(300,100,"grunt");
+			ship[0] = new entity(0,0,"spy");
+			ship[1] = new entity(0,0,"spy");
+			ship[2] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==3)
 		{
 			globalTimer = 30;
 			enemiesLeft = 40;
-			ship[0] = new entity(100,50,"grunt");
-			ship[1] = new entity(200,150,"grunt");
-			ship[2] = new entity(300,100,"grunt");
-			ship[3] = new entity(300,100,"grunt");
+			ship[0] = new entity(0,0,"grunt");
+			ship[1] = new entity(0,0,"grunt");
+			ship[2] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==4)
 		{
 			globalTimer = 40;
 			enemiesLeft = 50;
-			ship[0] = new entity(100,50,"runner");
-			ship[1] = new entity(200,150,"grunt");
-			ship[2] = new entity(300,100,"grunt");
-			ship[3] = new entity(300,100,"grunt");
-			ship[4] = new entity(300,100,"grunt");
+			ship[0] = new entity(0,0,"runner");
+			ship[1] = new entity(0,0,"grunt");
+			ship[2] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"grunt");
+			ship[4] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==5)
 		{
 			globalTimer = 50;
 			enemiesLeft = 50;
-			ship[0] = new entity(100,50,"runner");
-			ship[1] = new entity(200,150,"runner");
-			ship[2] = new entity(300,100,"grunt");
-			ship[3] = new entity(300,100,"grunt");
-			ship[4] = new entity(300,100,"grunt");
+			ship[0] = new entity(0,0,"runner");
+			ship[1] = new entity(0,0,"runner");
+			ship[2] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"grunt");
+			ship[4] = new entity(0,0,"grunt");
 		}
 		
 		else
 		{
 			globalTimer = 60;
 			enemiesLeft = 50;
-			ship[0] = new entity(100,50,"runner");
-			ship[1] = new entity(200,150,"runner");
-			ship[2] = new entity(300,100,"runner");
-			ship[3] = new entity(300,100,"grunt");
-			ship[4] = new entity(300,100,"grunt");
-			ship[5] = new entity(300,100,"grunt");
+			ship[0] = new entity(0,0,"runner");
+			ship[1] = new entity(0,0,"runner");
+			ship[2] = new entity(0,0,"runner");
+			ship[3] = new entity(0,0,"grunt");
+			ship[4] = new entity(0,0,"grunt");
+			ship[5] = new entity(0,0,"grunt");
 		}
+		
+		//ship = [];
+		//for (var i = 0; i < 100; i++)
+		//{
+		//	ship[ship.length] = new entity(10,10,"spy");
+		//}
 		
 		for (var i = 0; i < ship.length; i++)
 		{
-			ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-			ship[i].y = 50;
-			if(ship[i].type=="spy")
-				ship[i].y = Math.floor(Math.random() * boundingHeight)+boundingY;
-			ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-			ship[i].targetY = boundingHeight;
+			respawnShip(i);
 		}
 		
 		//playerScore = 0;
@@ -817,7 +726,7 @@
 		}
 		*/
 		
-		playerHealth = 1; //5
+		
 		
 	}
 	
@@ -985,8 +894,8 @@
 	function drawCamera()
 	{
 		
-		var canvas = document.getElementById("primaryCanvas");
-		var context = document.getElementById("primaryCanvas").getContext('2d');
+		//var canvas = document.getElementById("primaryCanvas");
+		//var context = document.getElementById("primaryCanvas").getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
 		
@@ -1044,20 +953,22 @@
 			context.fillStyle = 'white';
 			
 			//wrapText(context, "TIMER: " +globalTimer, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
-			wrapText(context, "ENEMIES LEFT: " +enemiesLeft, (boundingWidth/2)-30, 25, maxWidth, lineHeight);
+			wrapText(context, "ENEMIES LEFT: " +enemiesLeft, (boundingWidth/2)-80, 25, maxWidth, lineHeight);
 			
 			//maxWidth = 300;
 			//wrapText(context, touchText, 25, 50, maxWidth, lineHeight);
 		
+			//playerHealth = 10;
+		
+			startingX = (playerHealth*16)-16;
+			for (var i = 0; i < playerHealth; i++)
+			{
+				document.getElementById("primaryCanvas").getContext('2d').drawImage(heartFull, startingX+(boundingWidth/2)-(32*i), boundingHeight-40);
+			}
+		
 		}
 		
-		//playerHealth = 10;
 		
-		startingX = (playerHealth*16)-16;
-		for (var i = 0; i < playerHealth; i++)
-		{
-			document.getElementById("primaryCanvas").getContext('2d').drawImage(heartFull, startingX+(boundingWidth/2)-(32*i), boundingHeight-40);
-		}
 		
 	}
 	
@@ -1321,6 +1232,40 @@
 		}
 	}
 	
+	function handleGameLogic()
+	{
+	
+		for (var i = ship.length-1; i >= 0; i--)
+		{
+			
+			if(ship[i].health <= 0)
+			{
+				
+				playerScore = playerScore + 1;
+				screenShakeDuration = 15;
+						
+				ship[i].health = 1;
+				
+				respawnShip(i);
+				
+				
+				enemiesLeft--;
+				
+				if(ship.length > enemiesLeft)
+					ship.splice(i,1);
+				
+				if(enemiesLeft<=0)
+					showWin();
+				
+				
+					
+				
+			}
+			
+		}
+	
+	}
+	
 	function update()
 	{
 		
@@ -1339,6 +1284,7 @@
 		else
 			drawCamera();
 		
+		handleGameLogic();
 		
 		requestAnimationFrame(update);
 	}
