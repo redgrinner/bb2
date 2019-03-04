@@ -642,7 +642,7 @@
 			//for (var z = 0; z < event.targetTouches.length; z++)
 			{
 				swipeLength++;
-				if(swipLength < 15)
+				if(swipeLength < 20)
 				{
 					var touch = event.targetTouches[z];
 					var x = touch.pageX;
@@ -657,6 +657,8 @@
 	obj.addEventListener('touchstart', function(event) 
 	{
 		touchText = "";
+		if(event.targetTouches.length==1)
+			swipeLength = 0;
 		//touchText = "touches: " + event.targetTouches.length;
 	}, false);
 	
@@ -665,11 +667,9 @@
 		if(gameStarted)
 		{
 			
-			if(z==0)
-				swipeLength = 0;
-			
 			for (var z = 0; z < event.targetTouches.length; z++)
 			{
+								
 				var touch = event.targetTouches[z];
 				var x = touch.pageX;
 				var y = touch.pageY;
