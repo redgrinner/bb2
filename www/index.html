@@ -23,7 +23,7 @@
 	<link rel="stylesheet" type="text/css" href="css/index.css" />
     -->
 	
-	<title>Shotgun Triangle</title>
+	<title>Explode</title>
 	
 	<style type="text/css"> 
 		
@@ -133,7 +133,7 @@
 			display: block;
 			width: 250px; /**/
 			/*height:800px;*/
-			
+			display: none;
 		}
 	
 	</style>
@@ -166,7 +166,7 @@
 	</div>
 	
 	<div id="loseScreen" class="menuScreen center">
-		<span class="titleText" style="color:orange">E X P L O D E</span>
+		<span class="titleText" style="color:orange">D E F E A T</span>
 		<br />
 		<br />
 		<span id="output_fail">You failed to stop the enemy.</span> <br />
@@ -178,7 +178,7 @@
 	</div>
 	
 	<div id="winScreen" class="menuScreen center">
-		<span class="titleText" style="color:orange">E X P L O D E</span>
+		<span class="titleText" style="color:orange">V I C T O R Y</span>
 		<br />
 		<br />
 		<span id="output_win">You successfully survived the wave.</span> <br />
@@ -208,7 +208,7 @@
 	explosionSheet = new Image();
 	explosionSheet.src = "images/explosion_total.png";
 	
-	
+	soundOn = true;
 	
 	heartEmpty = new Image();
 	heartEmpty.src = "images/heart_empty.png";
@@ -475,7 +475,8 @@
 	{
 		if(gameStarted)
 		{
-			for (var z = 0; z < event.targetTouches.length; z++)
+			var z = 0; //limit touches to the 1st finger 
+			//for (var z = 0; z < event.targetTouches.length; z++)
 			{
 				var touch = event.targetTouches[z];
 				var x = touch.pageX;
@@ -552,8 +553,9 @@
 	function startingSetup()
 	{
 		
+		//TryPlay("mayhem");
 		gameStarted = false;
-		//document.getElementById('menuScreen').style.display = "none";
+		document.getElementById('menuScreen').style.display = "block";
 		document.getElementById('loseScreen').style.display = "none";
 		document.getElementById('winScreen').style.display = "none";
 		
@@ -643,7 +645,7 @@
 		else if(playerLevel==2)
 		{
 			globalTimer = 20;
-			enemiesLeft = 30;
+			enemiesLeft = 20;
 			ship[0] = new entity(0,0,"spy");
 			ship[1] = new entity(0,0,"spy");
 			ship[2] = new entity(0,0,"grunt");
@@ -653,7 +655,7 @@
 		else if(playerLevel==3)
 		{
 			globalTimer = 30;
-			enemiesLeft = 40;
+			enemiesLeft = 30;
 			ship[0] = new entity(0,0,"grunt");
 			ship[1] = new entity(0,0,"grunt");
 			ship[2] = new entity(0,0,"grunt");
@@ -663,7 +665,7 @@
 		else if(playerLevel==4)
 		{
 			globalTimer = 40;
-			enemiesLeft = 50;
+			enemiesLeft = 40;
 			ship[0] = new entity(0,0,"runner");
 			ship[1] = new entity(0,0,"grunt");
 			ship[2] = new entity(0,0,"grunt");
@@ -685,7 +687,7 @@
 		else
 		{
 			globalTimer = 60;
-			enemiesLeft = 50;
+			enemiesLeft = 60;
 			ship[0] = new entity(0,0,"runner");
 			ship[1] = new entity(0,0,"runner");
 			ship[2] = new entity(0,0,"runner");
@@ -1051,6 +1053,7 @@
 	
 	function handleShipMovement()
 	{
+		//for (var i = ship.length-1; i >= 0; i--)
 		for (var i = 0; i < ship.length; i++)
 		{
 			
@@ -1190,19 +1193,20 @@
 			ship[i].y = ship[i].y + ship[i].dy;
 			
 			
-			if(ship[i].y> boundingHeight)
+			if(ship[i].y > boundingHeight)
 			{
-				ship[i].x = Math.floor(Math.random() * boundingWidth)+boundingX;
-				ship[i].y = 50;
-				ship[i].targetX = Math.floor(Math.random() * boundingWidth)+boundingX;
-				ship[i].targetY = boundingHeight;
+				respawnShip(i);
 				
 				screenShakeDuration = 15;
 				playerHealth--;
 				if(playerHealth <= 0)
 				{
 					showDefeat();
-					//hello();
+				}
+				else
+				{
+					//enemiesLeft--;
+					ship[i].health = 5000;
 				}
 			}
 			
@@ -1261,7 +1265,15 @@
 					
 				
 			}
-			
+			else if((ship[i].health == 5000) && (playerHealth > 0))
+			{
+				enemiesLeft--;
+				ship[i].health = 1;
+				if(ship.length > enemiesLeft)
+					ship.splice(i,1);
+				if(enemiesLeft<=0)
+					showWin();
+			}
 		}
 	
 	}
@@ -1302,6 +1314,27 @@
 		}
 	}
 	
+	function TryPlay(s)
+	{
+
+		/*if ((s == "track1") || (s == "track2") || (s == "track3") || (s == "track4"))
+		{
+
+			if (musicOn)
+				document.getElementById(s).play();
+
+			currentTrack = s;
+		}
+
+		else */if (soundOn)
+		{
+			//if you want the same sound to reset it's look so it always plays, uncomment
+			//document.getElementById(s).currentTime = 0;
+			document.getElementById(s).play();
+			
+		}
+	}
+	
 	window.addEventListener("load", function()
 	{
 		update();
@@ -1316,6 +1349,11 @@
 	<script type="text/javascript" src="core.js"></script>
 	<script type="text/javascript" src="explosion_html5.js"></script>
 	
+	<!--
+	<audio id="mayhem" preload="auto">
+        <source src="audio/8-Bit-Mayhem.mp3" type="audio/mp3">
+    </audio>
+	-->
 </body>
 
 </html>
