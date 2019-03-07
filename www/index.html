@@ -382,6 +382,8 @@
 	ninja = new Image();
 	ninja.src = "images/ninja_3.png";
 	
+	
+	
 	ship = [];
 	
 	touchText = "";
@@ -465,7 +467,7 @@
 		this.xSpeed = 6; //8
 		this.jumpPower = 8
 		this.hasGravity = true;
-		this.health = 5;
+		this.health = 1;
 		this.energy = 10;
 		
 		this.targetX = 0;
@@ -519,9 +521,17 @@
 		}
 		else if(this.type=="grunt") 
 		{
+			this.health = 1;
 			this.maxSpeed = 2;
 			this.image.src = "images/turtle_0.png";
 		}
+		else if(this.type=="boss") 
+		{
+			this.health = 10;
+			this.maxSpeed = 1;
+			this.image.src = "images/ninja_1.png";
+		}
+		
 		else if(this.type=="slider") 
 		{
 			this.team = "enemy";
@@ -600,14 +610,17 @@
 			//var canvas = document.getElementById('primaryCanvas'); //gameCanvas
 			//var ctx = canvas.getContext('2d');
 			
+			var lethalHit = true;		
 			var targetHit = false;
 			for (var i = 0; i < ship.length; i++)
 			{
 				if(getDist(ship[i].x+16,ship[i].y+16,x,y)<32)
 				{
 					targetHit = true;
-					ship[i].health = ship[i].health - 100;
+					ship[i].health = ship[i].health - 1;
 					var explosion_colors = ['blue','aqua','teal'];
+					if(ship[i].health > 0)
+						lethalHit = false;
 				}
 							
 			}
@@ -616,11 +629,15 @@
 			{
 				var explosion_colors = ['#FFFF00','#FFD700'];
 			}
-			var explo = new ExplosionClass(x, y, explosion_colors,3);
-			explo.ctx = context//ctx;			
-			explosions.push(explo);
-				
 			
+			if((targetHit==false) || (lethalHit==false))
+			{
+				var explo = new ExplosionClass(x, y, explosion_colors,3);
+				explo.ctx = context//ctx;			
+				explosions.push(explo);
+			}
+				
+			//exp[exp.length] = new explosion(x,y,"exp");
 
 			// If there's exactly one finger inside this element
 			//  if (event.targetTouches.length == 1) 
@@ -743,7 +760,7 @@
 		document.getElementById('loseScreen').style.display = "block";
 	}
 	
-	function showWin()
+	function showActualWin()
 	{
 		gameStarted = false;
 		document.getElementById('score_win').innerHTML = "SCORE: " + playerScore;
@@ -751,6 +768,11 @@
 		playerLevel++;
 		hello();
 		document.getElementById('winScreen').style.display = "block";
+	}
+	
+	function showWin()
+	{
+		finalCountdown = 1;
 	}
 	
 	function startingSetup()
@@ -802,6 +824,8 @@
 		
 		screenShakeDuration = 0;
 		
+		finalCountdown = 5000;
+		
 		lightningCounter = 0;
 		starTimer = 0;
 		starX = 0;
@@ -831,6 +855,7 @@
 	{
 		
 		gameStarted = false;
+		finalCountdown = 5000;
 		
 		chainActive = false;
 		chainLength = 0;
@@ -879,8 +904,8 @@
 			globalTimer = 40;
 			enemiesLeft = 40;
 			waveMode = false;
-			ship[0] = new entity(0,0,"runner");
-			ship[1] = new entity(0,0,"grunt");
+			ship[0] = new entity(0,0,"boss");
+			ship[1] = new entity(0,0,"boss");
 			ship[2] = new entity(0,0,"grunt");
 			ship[3] = new entity(0,0,"grunt");
 			ship[4] = new entity(0,0,"grunt");
@@ -901,13 +926,13 @@
 		{
 			globalTimer = 60;
 			enemiesLeft = 60;
-			waveMode = true;
-			//ship[0] = new entity(0,0,"runner");
-			//ship[1] = new entity(0,0,"runner");
-			//ship[2] = new entity(0,0,"runner");
-			//ship[3] = new entity(0,0,"grunt");
-			//ship[4] = new entity(0,0,"grunt");
-			//ship[5] = new entity(0,0,"grunt");
+			//waveMode = true;
+			ship[0] = new entity(0,0,"runner");
+			ship[1] = new entity(0,0,"grunt");
+			ship[2] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"boss");
+			ship[4] = new entity(0,0,"grunt");
+			ship[5] = new entity(0,0,"grunt");
 		}
 		
 		//ship = [];
@@ -1144,7 +1169,7 @@
 		//draw explosions
 		for (var i = exp.length-1; i >= 0; i--)
 		{
-			document.getElementById(exp[i].canvas).getContext('2d').drawImage(explosionSheet, 50*exp[i].frame, 0, 50, 50, exp[i].x, exp[i].y, 50, 50);
+			document.getElementById(exp[i].canvas).getContext('2d').drawImage(explosionSheet, 50*exp[i].frame, 0, 50, 50, exp[i].x-35, exp[i].y-35, 50, 50);
 			
 			exp[i].frame = exp[i].frame + 1;
 			if(exp[i].frame==11)
@@ -1472,6 +1497,7 @@
 					playerScore = playerScore + 1;
 					screenShakeDuration = 15;
 							
+					exp[exp.length] = new explosion(ship[i].x+16,ship[i].y+16,"exp");
 					
 					
 					enemiesLeft--;
@@ -1503,6 +1529,8 @@
 					playerScore = playerScore + 1;
 					screenShakeDuration = 15;
 							
+					exp[exp.length] = new explosion(ship[i].x+16,ship[i].y+16,"exp");
+					
 					ship[i].health = 1;
 					
 					respawnShip(i);
@@ -1576,6 +1604,12 @@
 		
 		if(gameStarted)
 		{
+			
+			if(finalCountdown != 5000)
+				finalCountdown--;
+			if(finalCountdown <=0)
+				showActualWin();
+			
 			globalTimer--;
 			
 			if(waveMode)
