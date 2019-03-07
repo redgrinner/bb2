@@ -327,7 +327,7 @@
 	</div>
 	
 	<div id="loseScreen" class="menuScreen center">
-		<span class="titleText" style="color:orange">D E F E A T</span>
+		<span class="titleText" style="color:red">GAME OVER</span>
 		<br />
 		<br />
 		<span id="output_fail">You failed to stop the enemy.</span> <br />
@@ -408,10 +408,21 @@
 	"#282828",
 	//"yellow",
 	//"darkgreen",
-	"dodgerblue",
-	"darkred"//,
+		//"dodgerblue",
+		//"darkred"//,
 	//"nebula"
 	];
+	
+	var colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+		'#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+		'#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+		'#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+		'#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+		'#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+		'#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+		'#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+		'#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+		'#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 	
 	distanceArray = [0.10,0.25,0.5,0.75,1,1.25];
 	
@@ -432,6 +443,9 @@
 		//else 
 		this.type = "star";
 		this.colour = greyShades[Math.floor(Math.random() * greyShades.length)];
+		
+		if(Math.floor(Math.random() * 10)>7)
+			this.colour = colorArray[Math.floor(Math.random() * colorArray.length)];
 		
 		var rX = Math.floor(Math.random() * 3000)-1500;
 		
@@ -656,14 +670,31 @@
 	
 	obj.addEventListener('touchstart', function(event) 
 	{
-		touchText = "";
+		
+		//if there is only one finger starting to touch, reset the swipe length 
+		//counter as we are starting a new swipe
 		if(event.targetTouches.length==1)
 			swipeLength = 0;
+		
+		touchText = "";
 		//touchText = "touches: " + event.targetTouches.length;
+		
+		if(gameStarted)
+		{
+			for (var z = 0; z < event.targetTouches.length; z++)
+			{
+				var touch = event.targetTouches[z];
+				var x = touch.pageX;
+				var y = touch.pageY;
+				targetShip(x,y);
+			}
+		}
+		
 	}, false);
 	
 	obj.addEventListener('touchend', function(event) 
 	{
+		/*
 		if(gameStarted)
 		{
 			
@@ -676,7 +707,7 @@
 				targetShip(x,y);
 			}
 		}
-		
+		*/
 		
 	}, false);
 	
@@ -789,7 +820,7 @@
 			star[star.length] = new heavenlyBody(rX,rY);
 		}
 		
-		playerHealth = 5; //5
+		playerHealth = 1; //5
 		hello();
 	}
 	
@@ -985,6 +1016,8 @@
 			{
 				star[i].y = boundingY;
 				star[i].colour = greyShades[Math.floor(Math.random() * greyShades.length)];
+				if(Math.floor(Math.random() * 10)>7)
+					star[i].colour  = colorArray[Math.floor(Math.random() * colorArray.length)];
 			}
 		}
 		
@@ -1504,7 +1537,7 @@
 			globalTimer--;
 			
 			/*
-			if(enemiesLeft > ship.length)
+			if((enemiesLeft > ship.length) && (playerLevel >= 3))
 			{
 				if(chainActive==false)
 				{
@@ -1532,6 +1565,7 @@
 				
 			}
 			*/
+			
 			if(globalTimer < 0)
 			{
 				//doNothing()
