@@ -724,6 +724,7 @@
 	function continueGame()
 	{
 		gameStarted = true;
+		introScreenDone = true;
 		document.getElementById('menuScreen').style.display = "none";
 		document.getElementById('winScreen').style.display = "none";
 		document.getElementById('loseScreen').style.display = "none";
@@ -757,6 +758,8 @@
 		
 		//TryPlay("mayhem");
 		gameStarted = false;
+		introScreenDone = false;
+		waveMode = false;
 		document.getElementById('menuScreen').style.display = "block";
 		document.getElementById('loseScreen').style.display = "none";
 		document.getElementById('winScreen').style.display = "none";
@@ -820,7 +823,7 @@
 			star[star.length] = new heavenlyBody(rX,rY);
 		}
 		
-		playerHealth = 1; //5
+		playerHealth = 5;
 		hello();
 	}
 	
@@ -843,7 +846,7 @@
 		if(playerLevel<=1)
 		{
 			globalTimer = 10;
-			enemiesLeft = 10;
+			enemiesLeft = 4; // 10;
 			ship[0] = new entity(0,0,"spy");
 			ship[1] = new entity(0,0,"spy");
 			ship[2] = new entity(0,0,"spy");
@@ -853,7 +856,7 @@
 		else if(playerLevel==2)
 		{
 			globalTimer = 20;
-			enemiesLeft = 20;
+			enemiesLeft = 5; //20;
 			ship[0] = new entity(0,0,"spy");
 			ship[1] = new entity(0,0,"spy");
 			ship[2] = new entity(0,0,"grunt");
@@ -864,16 +867,18 @@
 		{
 			globalTimer = 30;
 			enemiesLeft = 30;
-			ship[0] = new entity(0,0,"grunt");
-			ship[1] = new entity(0,0,"grunt");
-			ship[2] = new entity(0,0,"grunt");
-			ship[3] = new entity(0,0,"grunt");
+			waveMode = true;
+			//ship[0] = new entity(0,0,"grunt");
+			//ship[1] = new entity(0,0,"grunt");
+			//ship[2] = new entity(0,0,"grunt");
+			//ship[3] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==4)
 		{
 			globalTimer = 40;
 			enemiesLeft = 40;
+			waveMode = false;
 			ship[0] = new entity(0,0,"runner");
 			ship[1] = new entity(0,0,"grunt");
 			ship[2] = new entity(0,0,"grunt");
@@ -896,12 +901,13 @@
 		{
 			globalTimer = 60;
 			enemiesLeft = 60;
-			ship[0] = new entity(0,0,"runner");
-			ship[1] = new entity(0,0,"runner");
-			ship[2] = new entity(0,0,"runner");
-			ship[3] = new entity(0,0,"grunt");
-			ship[4] = new entity(0,0,"grunt");
-			ship[5] = new entity(0,0,"grunt");
+			waveMode = true;
+			//ship[0] = new entity(0,0,"runner");
+			//ship[1] = new entity(0,0,"runner");
+			//ship[2] = new entity(0,0,"runner");
+			//ship[3] = new entity(0,0,"grunt");
+			//ship[4] = new entity(0,0,"grunt");
+			//ship[5] = new entity(0,0,"grunt");
 		}
 		
 		//ship = [];
@@ -955,9 +961,9 @@
 			star[i].x = star[i].x + star[i].dx;
 			star[i].y = star[i].y + star[i].dy;
 			
-			//if(gameStarted==false)
-			//	context.fillStyle = document.getElementById("titleText").style.color
-			//else
+			if((introScreenDone==true) && (gameStarted==false))
+				context.fillStyle = document.getElementById("titleText").style.color
+			else
 				context.fillStyle = star[i].colour;
 				
 			//context.fillRect(star[i].x, star[i].y,2,2);
@@ -1276,9 +1282,10 @@
 			//handle turning 
 			//////////////////
 			
-			if(ship[i].type=="station")
+			if(waveMode)
 			{
-				ship[i].rot = changeRotation(ship[i].rot,ship[i].turningSpeed);
+				//don't rotate the ships
+				//ship[i].rot = changeRotation(ship[i].rot,ship[i].turningSpeed);
 			}
 			else
 			{
@@ -1457,37 +1464,72 @@
 		for (var i = ship.length-1; i >= 0; i--)
 		{
 			
-			if(ship[i].health <= 0)
+			if(waveMode)
 			{
-				
-				playerScore = playerScore + 1;
-				screenShakeDuration = 15;
-						
-				ship[i].health = 1;
-				
-				respawnShip(i);
-				
-				
-				enemiesLeft--;
-				
-				if(ship.length > enemiesLeft)
-					ship.splice(i,1);
-				
-				if(enemiesLeft<=0)
-					showWin();
-				
-				
+				if(ship[i].health <= 0)
+				{
 					
-				
-			}
-			else if((ship[i].health == 5000) && (playerHealth > 0))
-			{
-				enemiesLeft--;
-				ship[i].health = 1;
-				if(ship.length > enemiesLeft)
+					playerScore = playerScore + 1;
+					screenShakeDuration = 15;
+							
+					
+					
+					enemiesLeft--;
+					
+					
 					ship.splice(i,1);
-				if(enemiesLeft<=0)
-					showWin();
+					
+					if(enemiesLeft<=0)
+						showWin();
+					
+					
+						
+					
+				}
+				else if((ship[i].health == 5000) && (playerHealth > 0))
+				{
+					enemiesLeft--;
+					ship.splice(i,1);
+					if(enemiesLeft<=0)
+						showWin();
+				}
+
+			}
+			else 
+			{
+				if(ship[i].health <= 0)
+				{
+					
+					playerScore = playerScore + 1;
+					screenShakeDuration = 15;
+							
+					ship[i].health = 1;
+					
+					respawnShip(i);
+					
+					
+					enemiesLeft--;
+					
+					if(ship.length > enemiesLeft)
+						ship.splice(i,1);
+					
+					if(enemiesLeft<=0)
+						showWin();
+					
+					
+						
+					
+				}
+				else if((ship[i].health == 5000) && (playerHealth > 0))
+				{
+					enemiesLeft--;
+					ship[i].health = 1;
+					if(ship.length > enemiesLeft)
+						ship.splice(i,1);
+					if(enemiesLeft<=0)
+						showWin();
+				}
+			
 			}
 		}
 	
@@ -1536,35 +1578,39 @@
 		{
 			globalTimer--;
 			
-			/*
-			if((enemiesLeft > ship.length) && (playerLevel >= 3))
+			if(waveMode)
 			{
-				if(chainActive==false)
+				if((enemiesLeft > ship.length) && (playerLevel >= 3))
 				{
-					chainActive = true;
-					chainLength = 5;
-					chainX =  30+ Math.floor(Math.random() * (boundingWidth-80))+boundingX;
+					if(chainActive==false)
+					{
+						chainActive = true;
+						chainLength = 3;
+						chainX =  30+ Math.floor(Math.random() * (boundingWidth-80))+boundingX;
+						
+					}
+					
+					if(chainActive)
+					{
+						chainLength--;
+						if(chainLength==0)
+							chainActive = false;
+						
+						if(playerLevel>=6)
+							ship[ship.length] = new entity(0,0,"runner")
+						else
+							ship[ship.length] = new entity(0,0,"grunt");
+						respawnShip(ship.length-1);
+						
+						ship[ship.length-1].rot = 90; //270
+						ship[ship.length-1].x = chainX;
+						ship[ship.length-1].y = 50;
+						ship[ship.length-1].targetX = chainX;
+						ship[ship.length-1].targetY = boundingHeight;
+					}
 					
 				}
-				
-				if(chainActive)
-				{
-					chainLength--;
-					if(chainLength==0)
-						chainActive = false;
-					
-					ship[ship.length] = new entity(0,0,"grunt");
-					respawnShip(ship.length-1);
-					
-					ship[ship.length-1].rot = 90; //270
-					ship[ship.length-1].x = chainX;
-					ship[ship.length-1].y = 50;
-					ship[ship.length-1].targetX = chainX;
-					ship[ship.length-1].targetY = boundingHeight;
-				}
-				
 			}
-			*/
 			
 			if(globalTimer < 0)
 			{
