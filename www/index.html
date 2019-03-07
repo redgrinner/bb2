@@ -1531,7 +1531,10 @@
 							
 					exp[exp.length] = new explosion(ship[i].x+16,ship[i].y+16,"exp");
 					
-					ship[i].health = 1;
+					if(ship[i].type=="boss"
+						ship[i].health = 10;
+					else
+						ship[i].health = 1;
 					
 					respawnShip(i);
 					
@@ -1551,7 +1554,12 @@
 				else if((ship[i].health == 5000) && (playerHealth > 0))
 				{
 					enemiesLeft--;
-					ship[i].health = 1;
+					
+					if(ship[i].type=="boss"
+						ship[i].health = 10;
+					else
+						ship[i].health = 1;
+						
 					if(ship.length > enemiesLeft)
 						ship.splice(i,1);
 					if(enemiesLeft<=0)
