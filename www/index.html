@@ -529,7 +529,7 @@
 		{
 			this.health = 10;
 			this.maxSpeed = 1;
-			this.image.src = "images/ninja_1.png";
+			this.image.src = "images/green.png";
 		}
 		
 		else if(this.type=="slider") 
@@ -601,15 +601,55 @@
         }
         ctx.fillText(line, x, y);
     }
+	
+	function explodeSomething(x,y,type)
+	{
+		if(type=="spark")
+		{
+			var explosion_colors = ['#FFFF00','#FFD700'];
+			var explosion = new ExplosionClass(x, y, explosion_colors,3);
+		}
+		else if(type=="ting")
+		{
+			var explosion_colors = ['blue','aqua','teal'];
+			var explosion = new ExplosionClass(x, y, explosion_colors,4);
+		}
+		else
+		{
+			var explosion_colors = ['orange','red','FireBrick','darkorange'];
+			var explosion = new ExplosionClass(x, y, explosion_colors,8);
+		}
+		/*
+		if(type=="ship")
+		{
+			var explosion_colors = ['orange','red','FireBrick','darkorange'];
+			var explosion = new ExplosionClass(ship[i].x+16, ship[i].y+16, explosion_colors,8);
+		}
+		else if(type=="projectile")
+		{
+			
+		}
+		else if(type=="spark")
+		{
+			var explosion_colors = ['#FFFF00','#FFD700'];
+			var explosion = new ExplosionClass(pro[i].x, pro[i].y, explosion_colors,3);
+		}
+		else if(type=="heal")
+		{
+			var explosion_colors = ['blue','dodgerblue','aqua'];
+			var explosion = new ExplosionClass(player.x, player.y, explosion_colors,3);
+		}
+		*/
+		explosion.ctx = context;
+		explosions.push(explosion);
 		
+	}
+	
 	function targetShip(x,y)
 	{
 		if(gameStarted)
 		{
 		
-			//var canvas = document.getElementById('primaryCanvas'); //gameCanvas
-			//var ctx = canvas.getContext('2d');
-			
 			var lethalHit = true;		
 			var targetHit = false;
 			for (var i = 0; i < ship.length; i++)
@@ -618,7 +658,7 @@
 				{
 					targetHit = true;
 					ship[i].health = ship[i].health - 1;
-					var explosion_colors = ['blue','aqua','teal'];
+					
 					if(ship[i].health > 0)
 						lethalHit = false;
 				}
@@ -627,18 +667,13 @@
 			
 			if(targetHit==false)
 			{
-				var explosion_colors = ['#FFFF00','#FFD700'];
+				explodeSomething(x,y,"spark");
 			}
-			
-			if((targetHit==false) || (lethalHit==false))
+			else if((targetHit==true) && (lethalHit==false))
 			{
-				var explo = new ExplosionClass(x, y, explosion_colors,3);
-				explo.ctx = context//ctx;			
-				explosions.push(explo);
+				explodeSomething(x,y,"ting");
 			}
 				
-			//exp[exp.length] = new explosion(x,y,"exp");
-
 			// If there's exactly one finger inside this element
 			//  if (event.targetTouches.length == 1) 
 			//  {
@@ -681,6 +716,18 @@
 					targetShip(x,y);
 				}
 			}
+			
+			//superpower test
+			if((event.targetTouches.length==2) && (swipeLength > 5))
+			{
+				swipeLength = 100;
+				for (var i = 0; i < ship.length; i++)
+				{
+					ship[i].health = 0;
+					explodeSomething(ship[i].x,ship[i].y,"boom");
+				}
+			}
+			
 		}
 		
 	}, false);
@@ -875,7 +922,7 @@
 			ship[0] = new entity(0,0,"spy");
 			ship[1] = new entity(0,0,"spy");
 			ship[2] = new entity(0,0,"spy");
-			ship[3] = new entity(0,0,"grunt");
+			ship[3] = new entity(0,0,"boss");
 		}
 		
 		else if(playerLevel==2)
