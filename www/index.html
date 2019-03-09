@@ -607,7 +607,7 @@
 		if(type=="spark")
 		{
 			var explosion_colors = ['#FFFF00','#FFD700'];
-			var explosion = new ExplosionClass(x, y, explosion_colors,3);
+			var explosion = new ExplosionClass(x, y, explosion_colors,3); //3
 		}
 		else if(type=="ting")
 		{
@@ -731,7 +731,7 @@
 		}
 		
 	}, false);
-	
+			
 	obj.addEventListener('touchstart', function(event) 
 	{
 		
@@ -922,7 +922,7 @@
 			ship[0] = new entity(0,0,"spy");
 			ship[1] = new entity(0,0,"spy");
 			ship[2] = new entity(0,0,"spy");
-			ship[3] = new entity(0,0,"boss");
+			ship[3] = new entity(0,0,"grunt");
 		}
 		
 		else if(playerLevel==2)
@@ -1033,8 +1033,11 @@
 			star[i].x = star[i].x + star[i].dx;
 			star[i].y = star[i].y + star[i].dy;
 			
-			if((introScreenDone==true) && (gameStarted==false))
+			//if((introScreenDone==true) && (gameStarted==false))
+			if(document.getElementById("winScreen").style.display == "block")
 				context.fillStyle = document.getElementById("titleText").style.color
+			else if(document.getElementById("loseScreen").style.display == "block")
+				context.fillStyle = "darkred";
 			else
 				context.fillStyle = star[i].colour;
 				
@@ -1644,22 +1647,34 @@
 	function timedInterval()
 	{
 		
-		if(document.getElementById("titleText").style.color == "orange")
-			document.getElementById("titleText").style.color = "gold"
-		else if (document.getElementById("titleText").style.color == "gold")
-			document.getElementById("titleText").style.color = "lime"
-		else if (document.getElementById("titleText").style.color == "lime")
-			document.getElementById("titleText").style.color = "aqua"
-		else if (document.getElementById("titleText").style.color == "aqua")
-		document.getElementById("titleText").style.color = "violet"	
-		else if (document.getElementById("titleText").style.color == "violet")
-			document.getElementById("titleText").style.color = "red"
-		else if (document.getElementById("titleText").style.color == "red")
-			document.getElementById("titleText").style.color = "orange";
+		if(document.getElementById("winScreen").style.display == "block")
+		{
+		
+			if(document.getElementById("titleText").style.color == "orange")
+				document.getElementById("titleText").style.color = "gold"
+			else if (document.getElementById("titleText").style.color == "gold")
+				document.getElementById("titleText").style.color = "lime"
+			else if (document.getElementById("titleText").style.color == "lime")
+				document.getElementById("titleText").style.color = "aqua"
+			else if (document.getElementById("titleText").style.color == "aqua")
+				document.getElementById("titleText").style.color = "violet"	
+			else if (document.getElementById("titleText").style.color == "violet")
+				document.getElementById("titleText").style.color = "red"
+			else if (document.getElementById("titleText").style.color == "red")
+				document.getElementById("titleText").style.color = "orange";
+		}
+		
+		else if(document.getElementById("loseScreen").style.display == "block")
+		{
+			document.getElementById("titleText").style.color = "red";
+			explodeSomething(30+ Math.floor(Math.random() * (boundingWidth-80))+boundingX,50+Math.floor(Math.random() * (boundingHeight-140))+boundingY,"boom");
+		}
 		
 		if(gameStarted)
 		{
 			
+			//give a slight delay after killing the last enemy of the wave 
+			//so we can see their death throes before showing the win screen
 			if(finalCountdown != 5000)
 				finalCountdown--;
 			if(finalCountdown <=0)
